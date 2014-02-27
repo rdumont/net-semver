@@ -4,10 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace SemanticVersioning
 {
-    public class SemVer
+    public class SemVer : ICloneable
     {
-        private bool _loose;
-        private string _raw;
+        private readonly bool _loose;
+        private readonly string _raw;
         private string _version;
 
         public int Major { get; set; }
@@ -15,6 +15,18 @@ namespace SemanticVersioning
         public int Patch { get; set; }
         public object[] Prerelease { get; set; }
         public string[] Build { get; set; }
+
+        public SemVer(SemVer version)
+        {
+            _loose = version._loose;
+            _raw = version._raw;
+            _version = version._version;
+            Major = version.Major;
+            Minor = version.Minor;
+            Patch = version.Patch;
+            Prerelease = (object[]) version.Prerelease.Clone();
+            Build = (string[]) version.Build.Clone();
+        }
 
         public SemVer(string version, bool loose = false)
         {
@@ -59,6 +71,11 @@ namespace SemanticVersioning
         public override string ToString()
         {
             return _version;
+        }
+
+        public object Clone()
+        {
+            return new SemVer(this);
         }
     }
 }
