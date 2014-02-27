@@ -15,6 +15,10 @@ namespace SemanticVersioning
         public object[] Prerelease { get; set; }
         public string[] Build { get; set; }
 
+        protected SemVer()
+        {
+        }
+
         public SemVer(SemVer version)
         {
             _loose = version._loose;
@@ -93,6 +97,72 @@ namespace SemanticVersioning
         public object Clone()
         {
             return new SemVer(this);
+        }
+
+        public int Compare(SemVer other)
+        {
+            var main = CompareMain(other);
+            return main != 0 ? main : ComparePre(other);
+        }
+
+        protected int CompareMain(SemVer other)
+        {
+            var major = CompareIdentifiers(Major, other.Major);
+            if (major != 0) return major;
+            
+            var minor = CompareIdentifiers(Minor, other.Minor);
+            if (minor != 0) return minor;
+
+            return CompareIdentifiers(Patch, other.Patch);
+        }
+
+        protected int ComparePre(SemVer other)
+        {
+            // NOT having a prerelease is > having one
+            if (this.Prerelease.Length > 0 && other.Prerelease.Length == 0)
+                return -1;
+
+            if (this.Prerelease.Length == 0 && other.Prerelease.Length > 0)
+                return 1;
+
+            if (this.Prerelease.Length == 0 && other.Prerelease.Length == 0)
+                return 0;
+
+            for (var i = 0; i < Math.Max(this.Prerelease.Length, other.Prerelease.Length); i++)
+            {
+                if (other.Prerelease.Length == i)
+                    return 1;
+
+                if (this.Prerelease.Length == i)
+                    return -1;
+
+                var compare = CompareIdentifiers(this.Prerelease[i], other.Prerelease[i]);
+                if (compare != 0)
+                    return compare;
+            }
+            return 0;
+        }
+
+        protected static int CompareIdentifiers(object a, object b)
+        {
+            var anum = a as int?;
+            var bnum = b as int?;
+            var astr = a.ToString();
+            var bstr = b.ToString();
+
+            if (anum != null && bnum != null)
+                return anum == bnum ? 0 : (anum < bnum ? -1 : 1);
+
+            if (anum == null && bnum == null)
+            {
+                var stringCompare = string.CompareOrdinal(astr, bstr);
+                return stringCompare > 0 ? 1 : stringCompare < 0 ? -1 : 0;
+            }
+
+            if (anum != null)
+                return -1;
+
+            return 1;
         }
     }
 }
