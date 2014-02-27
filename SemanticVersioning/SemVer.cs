@@ -54,6 +54,24 @@ namespace SemanticVersioning
             Format();
         }
 
+        public static SemVer Parse(string version, bool loose = false)
+        {
+            var regex = loose ? Re.Loose : Re.Full;
+            return regex.IsMatch(version) ? new SemVer(version, loose) : null;
+        }
+
+        public static string Valid(string version, bool loose = false)
+        {
+            var semver = Parse(version, loose);
+            return semver != null ? semver._version : null;
+        }
+
+        public static string Clean(string version, bool loose = false)
+        {
+            var semver = Parse(version, loose);
+            return semver != null ? semver._version : null;
+        }
+
         public string Format()
         {
             _version = Major + "." + Minor + "." + Patch;
