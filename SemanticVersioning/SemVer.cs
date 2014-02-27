@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace SemanticVersioning
 {
@@ -31,7 +30,7 @@ namespace SemanticVersioning
         public SemVer(string version, bool loose = false)
         {
             _loose = loose;
-            var match = Regex.Match(version.Trim(), loose ? Re.Loose : Re.Full);
+            var match = (loose ? Re.Loose : Re.Full).Match(version.Trim());
 
             if (!match.Success)
                 throw new Exception("Invalid Version: " + version);
@@ -46,7 +45,7 @@ namespace SemanticVersioning
                 Prerelease = new object[] {};
             else
                 Prerelease = match.Groups[4].Value.Split('.').Select(id =>
-                    Regex.IsMatch(id, "^[0-9]+$") ? int.Parse(id) : (object) id).ToArray();
+                    Re.Integer.IsMatch(id) ? int.Parse(id) : (object) id).ToArray();
 
             Build = match.Groups[5].Success
                 ? match.Groups[5].Value.Split('.').ToArray()
