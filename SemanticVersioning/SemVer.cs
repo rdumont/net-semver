@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace SemanticVersioning
 {
-    public class SemVer : ICloneable
+    public class SemVer : ICloneable, IEquatable<SemVer>
     {
         private readonly bool _loose;
         private readonly string _raw;
@@ -163,6 +163,75 @@ namespace SemanticVersioning
                 return -1;
 
             return 1;
+        }
+
+        public bool Equals(SemVer other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return this.Compare(other) == 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((SemVer)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = _loose.GetHashCode();
+                hashCode = (hashCode * 397) ^ Major;
+                hashCode = (hashCode * 397) ^ Minor;
+                hashCode = (hashCode * 397) ^ Patch;
+                hashCode = (hashCode * 397) ^ Prerelease.GetHashCode();
+                hashCode = (hashCode * 397) ^ Build.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(SemVer v1, SemVer v2)
+        {
+            if (ReferenceEquals(v1, null))
+                return ReferenceEquals(v2, null);
+            return v1.Compare(v2) == 0;
+        }
+
+        public static bool operator !=(SemVer v1, SemVer v2)
+        {
+            return !(v1 == v2);
+        }
+
+        public static bool operator <(SemVer v1, SemVer v2)
+        {
+            if (ReferenceEquals(v1, null))
+                throw new ArgumentNullException("v1", "Cannot compare null versions");
+            if (ReferenceEquals(v2, null))
+                throw new ArgumentNullException("v2", "Cannot compare null versions");
+            return v1.Compare(v2) < 0;
+        }
+
+        public static bool operator >(SemVer v1, SemVer v2)
+        {
+            if (ReferenceEquals(v1, null))
+                throw new ArgumentNullException("v1", "Cannot compare null versions");
+            if (ReferenceEquals(v2, null))
+                throw new ArgumentNullException("v2", "Cannot compare null versions");
+            return v1.Compare(v2) > 0;
+        }
+
+        public static bool operator <=(SemVer v1, SemVer v2)
+        {
+            return !(v1 > v2);
+        }
+
+        public static bool operator >=(SemVer v1, SemVer v2)
+        {
+            return !(v1 < v2);
         }
     }
 }

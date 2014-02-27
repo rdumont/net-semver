@@ -329,6 +329,103 @@ namespace SemanticVersioning.Tests
                 Assert.That(result, Is.EqualTo(0));
             }
         }
+
+        class Operators
+        {
+            [TestCase("1.2.3", "1.2.3", true)]
+            [TestCase("1.2.3", "1.2.4", false)]
+            [TestCase("1.2.3", "1.2.3-beta", false)]
+            public void Equals(string v1, string v2, bool shouldEqual)
+            {
+                // Arrange
+                var version = new SemVer(v1);
+                var other = new SemVer(v2);
+
+                // Act & Assert
+                Assert.That(version == other, Is.EqualTo(shouldEqual));
+            }
+
+            [TestCase("1.2.3", "1.2.3", false)]
+            [TestCase("1.2.3", "1.2.4", true)]
+            [TestCase("1.2.3", "1.2.3-beta", true)]
+            public void Not_equals(string v1, string v2, bool shouldEqual)
+            {
+                // Arrange
+                var version = new SemVer(v1);
+                var other = new SemVer(v2);
+
+                // Act & Assert
+                Assert.That(version != other, Is.EqualTo(shouldEqual));
+            }
+
+            [TestCase("1.2.3-beta", "1.2.3-beta.0", true)]
+            [TestCase("1.2.3", "1.2.4", true)]
+            [TestCase("1.2.3", "1.3.0", true)]
+            [TestCase("1.2.3", "2.0.0", true)]
+            [TestCase("1.2.3-beta", "1.2.3", true)]
+            [TestCase("1.2.3-beta", "1.2.3-alpha", false)]
+            [TestCase("1.2.3", "1.2.3", false)]
+            public void Less_than(string v1, string v2, bool shouldEqual)
+            {
+                // Arrange
+                var version = new SemVer(v1);
+                var other = new SemVer(v2);
+
+                // Act & Assert
+                Assert.That(version < other, Is.EqualTo(shouldEqual));
+            }
+
+            [TestCase("1.2.3-beta.0", "1.2.3-beta", true)]
+            [TestCase("1.2.4", "1.2.3", true)]
+            [TestCase("1.3.0", "1.2.3", true)]
+            [TestCase("2.0.0", "1.2.3", true)]
+            [TestCase("1.2.3", "1.2.3-beta", true)]
+            [TestCase("1.2.3-alpha", "1.2.3-beta", false)]
+            [TestCase("1.2.3", "1.2.3", false)]
+            public void Greater_than(string v1, string v2, bool shouldEqual)
+            {
+                // Arrange
+                var version = new SemVer(v1);
+                var other = new SemVer(v2);
+
+                // Act & Assert
+                Assert.That(version > other, Is.EqualTo(shouldEqual));
+            }
+
+            [TestCase("1.2.3-beta", "1.2.3-beta.0", true)]
+            [TestCase("1.2.3", "1.2.4", true)]
+            [TestCase("1.2.3", "1.3.0", true)]
+            [TestCase("1.2.3", "2.0.0", true)]
+            [TestCase("1.2.3-beta", "1.2.3", true)]
+            [TestCase("1.2.3", "1.2.3", true)]
+            [TestCase("1.2.3-beta", "1.2.3-alpha", false)]
+            public void Less_than_or_equal(string v1, string v2, bool shouldEqual)
+            {
+                // Arrange
+                var version = new SemVer(v1);
+                var other = new SemVer(v2);
+
+                // Act & Assert
+                Assert.That(version <= other, Is.EqualTo(shouldEqual));
+            }
+
+            [TestCase("1.2.3-beta.0", "1.2.3-beta", true)]
+            [TestCase("1.2.4", "1.2.3", true)]
+            [TestCase("1.3.0", "1.2.3", true)]
+            [TestCase("2.0.0", "1.2.3", true)]
+            [TestCase("1.2.3", "1.2.3-beta", true)]
+            [TestCase("1.2.3", "1.2.3", true)]
+            [TestCase("1.2.3-alpha", "1.2.3-beta", false)]
+            public void Greater_than_or_equal(string v1, string v2, bool shouldEqual)
+            {
+                // Arrange
+                var version = new SemVer(v1);
+                var other = new SemVer(v2);
+
+                // Act & Assert
+                Assert.That(version >= other, Is.EqualTo(shouldEqual));
+            }
+        }
     }
 
     public class TestableSemVer : SemVer
