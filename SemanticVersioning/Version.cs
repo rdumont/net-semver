@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace SemanticVersioning
 {
-    public class SemVer : ICloneable, IEquatable<SemVer>
+    public class Version : ICloneable, IEquatable<Version>
     {
         private readonly bool _loose;
         private readonly string _raw;
@@ -17,11 +16,11 @@ namespace SemanticVersioning
         public object[] Prerelease { get; set; }
         public string[] Build { get; set; }
 
-        protected SemVer()
+        protected Version()
         {
         }
 
-        public SemVer(SemVer version)
+        public Version(Version version)
         {
             _loose = version._loose;
             _raw = version._raw;
@@ -33,7 +32,7 @@ namespace SemanticVersioning
             Build = (string[]) version.Build.Clone();
         }
 
-        public SemVer(string version, bool loose = false)
+        public Version(string version, bool loose = false)
         {
             _loose = loose;
             var match = (loose ? Re.Loose : Re.Full).Match(version.Trim());
@@ -60,10 +59,10 @@ namespace SemanticVersioning
             Format();
         }
 
-        public static SemVer Parse(string version, bool loose = false)
+        public static Version Parse(string version, bool loose = false)
         {
             var regex = loose ? Re.Loose : Re.Full;
-            return regex.IsMatch(version) ? new SemVer(version, loose) : null;
+            return regex.IsMatch(version) ? new Version(version, loose) : null;
         }
 
         public static string Valid(string version, bool loose = false)
@@ -98,10 +97,10 @@ namespace SemanticVersioning
 
         public object Clone()
         {
-            return new SemVer(this);
+            return new Version(this);
         }
 
-        public int Compare(SemVer other)
+        public int Compare(Version other)
         {
             var main = CompareMain(other);
             return main != 0 ? main : ComparePre(other);
@@ -112,10 +111,10 @@ namespace SemanticVersioning
             if (string.IsNullOrWhiteSpace(other))
                 throw new ArgumentNullException("other");
 
-            SemVer otherVersion;
+            Version otherVersion;
             try
             {
-                otherVersion = new SemVer(other, loose);
+                otherVersion = new Version(other, loose);
             }
             catch (FormatException exception)
             {
@@ -124,7 +123,7 @@ namespace SemanticVersioning
             return Compare(otherVersion);
         }
 
-        protected int CompareMain(SemVer other)
+        protected int CompareMain(Version other)
         {
             var major = CompareIdentifiers(Major, other.Major);
             if (major != 0) return major;
@@ -135,7 +134,7 @@ namespace SemanticVersioning
             return CompareIdentifiers(Patch, other.Patch);
         }
 
-        protected int ComparePre(SemVer other)
+        protected int ComparePre(Version other)
         {
             // NOT having a prerelease is > having one
             if (this.Prerelease.Length > 0 && other.Prerelease.Length == 0)
@@ -184,7 +183,7 @@ namespace SemanticVersioning
             return 1;
         }
 
-        public SemVer Increment(IncrementType type)
+        public Version Increment(IncrementType type)
         {
             switch (type)
             {
@@ -226,7 +225,7 @@ namespace SemanticVersioning
             return this;
         }
 
-        public bool Equals(SemVer other)
+        public bool Equals(Version other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -238,7 +237,7 @@ namespace SemanticVersioning
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((SemVer)obj);
+            return Equals((Version)obj);
         }
 
         public override int GetHashCode()
@@ -257,19 +256,19 @@ namespace SemanticVersioning
 
         #region SemVer Operator Overloads
 
-        public static bool operator ==(SemVer v1, SemVer v2)
+        public static bool operator ==(Version v1, Version v2)
         {
             if (ReferenceEquals(v1, null))
                 return ReferenceEquals(v2, null);
             return v1.Compare(v2) == 0;
         }
 
-        public static bool operator !=(SemVer v1, SemVer v2)
+        public static bool operator !=(Version v1, Version v2)
         {
             return !(v1 == v2);
         }
 
-        public static bool operator <(SemVer v1, SemVer v2)
+        public static bool operator <(Version v1, Version v2)
         {
             if (ReferenceEquals(v1, null))
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
@@ -278,7 +277,7 @@ namespace SemanticVersioning
             return v1.Compare(v2) < 0;
         }
 
-        public static bool operator >(SemVer v1, SemVer v2)
+        public static bool operator >(Version v1, Version v2)
         {
             if (ReferenceEquals(v1, null))
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
@@ -287,12 +286,12 @@ namespace SemanticVersioning
             return v1.Compare(v2) > 0;
         }
 
-        public static bool operator <=(SemVer v1, SemVer v2)
+        public static bool operator <=(Version v1, Version v2)
         {
             return !(v1 > v2);
         }
 
-        public static bool operator >=(SemVer v1, SemVer v2)
+        public static bool operator >=(Version v1, Version v2)
         {
             return !(v1 < v2);
         }
@@ -301,19 +300,19 @@ namespace SemanticVersioning
 
         #region SemVer to String Operator Overloads
 
-        public static bool operator ==(SemVer v1, string v2)
+        public static bool operator ==(Version v1, string v2)
         {
             if (ReferenceEquals(v1, null))
                 return false;
             return v1.Compare(v2) == 0;
         }
 
-        public static bool operator !=(SemVer v1, string v2)
+        public static bool operator !=(Version v1, string v2)
         {
             return !(v1 == v2);
         }
 
-        public static bool operator <(SemVer v1, string v2)
+        public static bool operator <(Version v1, string v2)
         {
             if (ReferenceEquals(v1, null))
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
@@ -322,7 +321,7 @@ namespace SemanticVersioning
             return v1.Compare(v2) < 0;
         }
 
-        public static bool operator >(SemVer v1, string v2)
+        public static bool operator >(Version v1, string v2)
         {
             if (ReferenceEquals(v1, null))
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
@@ -331,12 +330,12 @@ namespace SemanticVersioning
             return v1.Compare(v2) > 0;
         }
 
-        public static bool operator <=(SemVer v1, string v2)
+        public static bool operator <=(Version v1, string v2)
         {
             return !(v1 > v2);
         }
 
-        public static bool operator >=(SemVer v1, string v2)
+        public static bool operator >=(Version v1, string v2)
         {
             return !(v1 < v2);
         }
@@ -345,19 +344,19 @@ namespace SemanticVersioning
 
         #region String to SemVer Operator Overloads
 
-        public static bool operator ==(string v1, SemVer v2)
+        public static bool operator ==(string v1, Version v2)
         {
             if (ReferenceEquals(v2, null))
                 return false;
             return v2.Compare(v1) == 0;
         }
 
-        public static bool operator !=(string v1, SemVer v2)
+        public static bool operator !=(string v1, Version v2)
         {
             return !(v1 == v2);
         }
 
-        public static bool operator <(string v1, SemVer v2)
+        public static bool operator <(string v1, Version v2)
         {
             if (string.IsNullOrWhiteSpace(v1))
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
@@ -366,7 +365,7 @@ namespace SemanticVersioning
             return v2.Compare(v1) > 0;
         }
 
-        public static bool operator >(string v1, SemVer v2)
+        public static bool operator >(string v1, Version v2)
         {
             if (string.IsNullOrWhiteSpace(v1))
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
@@ -375,12 +374,12 @@ namespace SemanticVersioning
             return v2.Compare(v1) < 0;
         }
 
-        public static bool operator <=(string v1, SemVer v2)
+        public static bool operator <=(string v1, Version v2)
         {
             return !(v1 > v2);
         }
 
-        public static bool operator >=(string v1, SemVer v2)
+        public static bool operator >=(string v1, Version v2)
         {
             return !(v1 < v2);
         }

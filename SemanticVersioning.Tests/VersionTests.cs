@@ -1,16 +1,15 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace SemanticVersioning.Tests
 {
     [TestFixture]
-    class SemVerTests
+    class VersionTests
     {
         [Test]
         public void Parse_strict_full_version()
         {
             // Act
-            var version = new SemVer("1.2.3-beta.4+release.55");
+            var version = new Version("1.2.3-beta.4+release.55");
 
             // Assert
             Assert.That(version.Major, Is.EqualTo(1));
@@ -24,7 +23,7 @@ namespace SemanticVersioning.Tests
         public void Parse_loose_version()
         {
             // Act
-            var version = new SemVer("=1.2.3beta.4", true);
+            var version = new Version("=1.2.3beta.4", true);
 
             // Assert
             Assert.That(version.Major, Is.EqualTo(1));
@@ -37,7 +36,7 @@ namespace SemanticVersioning.Tests
         public void Should_accept_leading_v_character()
         {
             // Act
-            var version = new SemVer("v1.2.3-beta.4+release.55");
+            var version = new Version("v1.2.3-beta.4+release.55");
 
             // Assert
             Assert.That(version.Major, Is.EqualTo(1));
@@ -51,7 +50,7 @@ namespace SemanticVersioning.Tests
         public void Should_throw_error_for_invalid_version()
         {
             // Act & Assert
-            Assert.That(() => new SemVer("a.b.c"),
+            Assert.That(() => new Version("a.b.c"),
                 Throws.Exception);
         }
 
@@ -64,7 +63,7 @@ namespace SemanticVersioning.Tests
             public void Equal(object a, object b)
             {
                 // Act & Assert
-                Assert.That(TestableSemVer.CompareIdentifiers(a, b), Is.EqualTo(0));
+                Assert.That(TestableVersion.CompareIdentifiers(a, b), Is.EqualTo(0));
             }
 
             [TestCase(2, 1)]
@@ -73,7 +72,7 @@ namespace SemanticVersioning.Tests
             public void Positive_result(object a, object b)
             {
                 // Act & Assert
-                Assert.That(TestableSemVer.CompareIdentifiers(a, b), Is.EqualTo(1));
+                Assert.That(TestableVersion.CompareIdentifiers(a, b), Is.EqualTo(1));
             }
 
             [TestCase(1, 2)]
@@ -82,7 +81,7 @@ namespace SemanticVersioning.Tests
             public void Negative_result(object a, object b)
             {
                 // Act & Assert
-                Assert.That(TestableSemVer.CompareIdentifiers(a, b), Is.EqualTo(-1));
+                Assert.That(TestableVersion.CompareIdentifiers(a, b), Is.EqualTo(-1));
             }
         }
 
@@ -92,8 +91,8 @@ namespace SemanticVersioning.Tests
             public void Equal_prereleases()
             {
                 // Arrange
-                var version = new TestableSemVer {Prerelease = new object[] {"beta", 3}};
-                var other = new TestableSemVer {Prerelease = new object[] {"beta", 3}};
+                var version = new TestableVersion {Prerelease = new object[] {"beta", 3}};
+                var other = new TestableVersion {Prerelease = new object[] {"beta", 3}};
 
                 // Act
                 var result = version.ComparePre(other);
@@ -106,8 +105,8 @@ namespace SemanticVersioning.Tests
             public void Greater_prerelease_string()
             {
                 // Arrange
-                var version = new TestableSemVer {Prerelease = new object[] {"beta"}};
-                var other = new TestableSemVer {Prerelease = new object[] {"alpha"}};
+                var version = new TestableVersion {Prerelease = new object[] {"beta"}};
+                var other = new TestableVersion {Prerelease = new object[] {"alpha"}};
 
                 // Act
                 var result = version.ComparePre(other);
@@ -120,8 +119,8 @@ namespace SemanticVersioning.Tests
             public void Extra_prerelease_number()
             {
                 // Arrange
-                var version = new TestableSemVer {Prerelease = new object[] {"beta", 1}};
-                var other = new TestableSemVer {Prerelease = new object[] {"beta"}};
+                var version = new TestableVersion {Prerelease = new object[] {"beta", 1}};
+                var other = new TestableVersion {Prerelease = new object[] {"beta"}};
 
                 // Act
                 var result = version.ComparePre(other);
@@ -134,8 +133,8 @@ namespace SemanticVersioning.Tests
             public void Greater_prerelease_number()
             {
                 // Arrange
-                var version = new TestableSemVer {Prerelease = new object[] {"beta", 5}};
-                var other = new TestableSemVer {Prerelease = new object[] {"beta", 4}};
+                var version = new TestableVersion {Prerelease = new object[] {"beta", 5}};
+                var other = new TestableVersion {Prerelease = new object[] {"beta", 4}};
 
                 // Act
                 var result = version.ComparePre(other);
@@ -148,8 +147,8 @@ namespace SemanticVersioning.Tests
             public void Smaller_prerelease_string()
             {
                 // Arrange
-                var version = new TestableSemVer { Prerelease = new object[] { "beta" } };
-                var other = new TestableSemVer { Prerelease = new object[] { "delta" } };
+                var version = new TestableVersion { Prerelease = new object[] { "beta" } };
+                var other = new TestableVersion { Prerelease = new object[] { "delta" } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -162,8 +161,8 @@ namespace SemanticVersioning.Tests
             public void Less_prerelease_number()
             {
                 // Arrange
-                var version = new TestableSemVer { Prerelease = new object[] { "beta" } };
-                var other = new TestableSemVer { Prerelease = new object[] { "beta", 1 } };
+                var version = new TestableVersion { Prerelease = new object[] { "beta" } };
+                var other = new TestableVersion { Prerelease = new object[] { "beta", 1 } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -176,8 +175,8 @@ namespace SemanticVersioning.Tests
             public void Smaller_prerelease_number()
             {
                 // Arrange
-                var version = new TestableSemVer { Prerelease = new object[] { "beta", 4 } };
-                var other = new TestableSemVer { Prerelease = new object[] { "beta", 5 } };
+                var version = new TestableVersion { Prerelease = new object[] { "beta", 4 } };
+                var other = new TestableVersion { Prerelease = new object[] { "beta", 5 } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -190,8 +189,8 @@ namespace SemanticVersioning.Tests
             public void Release_should_be_greater_than_prerelease()
             {
                 // Arrange
-                var version = new TestableSemVer {Prerelease = new object[] {}};
-                var other = new TestableSemVer {Prerelease = new object[] {"beta"}};
+                var version = new TestableVersion {Prerelease = new object[] {}};
+                var other = new TestableVersion {Prerelease = new object[] {"beta"}};
 
                 // Act
                 var result = version.ComparePre(other);
@@ -204,8 +203,8 @@ namespace SemanticVersioning.Tests
             public void Prerelease_should_be_smaller_than_release()
             {
                 // Arrange
-                var version = new TestableSemVer {Prerelease = new object[] {"beta"}};
-                var other = new TestableSemVer {Prerelease = new object[] {}};
+                var version = new TestableVersion {Prerelease = new object[] {"beta"}};
+                var other = new TestableVersion {Prerelease = new object[] {}};
 
                 // Act
                 var result = version.ComparePre(other);
@@ -218,8 +217,8 @@ namespace SemanticVersioning.Tests
             public void Should_equal_without_prerelease()
             {
                 // Arrange
-                var version = new TestableSemVer {Prerelease = new object[] {}};
-                var other = new TestableSemVer {Prerelease = new object[] {}};
+                var version = new TestableVersion {Prerelease = new object[] {}};
+                var other = new TestableVersion {Prerelease = new object[] {}};
 
                 // Act
                 var result = version.ComparePre(other);
@@ -235,8 +234,8 @@ namespace SemanticVersioning.Tests
             public void Greater_due_to_major()
             {
                 // Arrange
-                var version = new TestableSemVer {Major = 2};
-                var other = new TestableSemVer {Major = 1};
+                var version = new TestableVersion {Major = 2};
+                var other = new TestableVersion {Major = 1};
 
                 // Act
                 var result = version.CompareMain(other);
@@ -249,8 +248,8 @@ namespace SemanticVersioning.Tests
             public void Smaller_due_to_major()
             {
                 // Arrange
-                var version = new TestableSemVer {Major = 2};
-                var other = new TestableSemVer {Major = 3};
+                var version = new TestableVersion {Major = 2};
+                var other = new TestableVersion {Major = 3};
 
                 // Act
                 var result = version.CompareMain(other);
@@ -263,8 +262,8 @@ namespace SemanticVersioning.Tests
             public void Greater_due_to_minor()
             {
                 // Arrange
-                var version = new TestableSemVer { Major = 1, Minor = 2};
-                var other = new TestableSemVer { Major = 1, Minor = 1};
+                var version = new TestableVersion { Major = 1, Minor = 2};
+                var other = new TestableVersion { Major = 1, Minor = 1};
 
                 // Act
                 var result = version.CompareMain(other);
@@ -277,8 +276,8 @@ namespace SemanticVersioning.Tests
             public void Smaller_due_to_minor()
             {
                 // Arrange
-                var version = new TestableSemVer { Major = 1, Minor = 2};
-                var other = new TestableSemVer { Major = 1, Minor = 3};
+                var version = new TestableVersion { Major = 1, Minor = 2};
+                var other = new TestableVersion { Major = 1, Minor = 3};
 
                 // Act
                 var result = version.CompareMain(other);
@@ -291,8 +290,8 @@ namespace SemanticVersioning.Tests
             public void Greater_due_to_patch()
             {
                 // Arrange
-                var version = new TestableSemVer { Major = 1, Minor = 2, Patch = 3};
-                var other = new TestableSemVer { Major = 1, Minor = 2, Patch = 2};
+                var version = new TestableVersion { Major = 1, Minor = 2, Patch = 3};
+                var other = new TestableVersion { Major = 1, Minor = 2, Patch = 2};
 
                 // Act
                 var result = version.CompareMain(other);
@@ -305,8 +304,8 @@ namespace SemanticVersioning.Tests
             public void Smaller_due_to_patch()
             {
                 // Arrange
-                var version = new TestableSemVer { Major = 1, Minor = 2, Patch = 3};
-                var other = new TestableSemVer { Major = 1, Minor = 2, Patch = 4};
+                var version = new TestableVersion { Major = 1, Minor = 2, Patch = 3};
+                var other = new TestableVersion { Major = 1, Minor = 2, Patch = 4};
 
                 // Act
                 var result = version.CompareMain(other);
@@ -319,8 +318,8 @@ namespace SemanticVersioning.Tests
             public void Equal_main_versions()
             {
                 // Arrange
-                var version = new TestableSemVer { Major = 1, Minor = 2, Patch = 3};
-                var other = new TestableSemVer { Major = 1, Minor = 2, Patch = 3};
+                var version = new TestableVersion { Major = 1, Minor = 2, Patch = 3};
+                var other = new TestableVersion { Major = 1, Minor = 2, Patch = 3};
 
                 // Act
                 var result = version.CompareMain(other);
@@ -338,8 +337,8 @@ namespace SemanticVersioning.Tests
             public void Equals(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new SemVer(v1);
-                var other = new SemVer(v2);
+                var version = new Version(v1);
+                var other = new Version(v2);
 
                 // Act & Assert
                 Assert.That(version == other, Is.EqualTo(shouldEqual));
@@ -353,8 +352,8 @@ namespace SemanticVersioning.Tests
             public void Not_equals(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new SemVer(v1);
-                var other = new SemVer(v2);
+                var version = new Version(v1);
+                var other = new Version(v2);
 
                 // Act & Assert
                 Assert.That(version != other, Is.EqualTo(shouldEqual));
@@ -372,8 +371,8 @@ namespace SemanticVersioning.Tests
             public void Less_than(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new SemVer(v1);
-                var other = new SemVer(v2);
+                var version = new Version(v1);
+                var other = new Version(v2);
 
                 // Act & Assert
                 Assert.That(version < other, Is.EqualTo(shouldEqual));
@@ -391,8 +390,8 @@ namespace SemanticVersioning.Tests
             public void Greater_than(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new SemVer(v1);
-                var other = new SemVer(v2);
+                var version = new Version(v1);
+                var other = new Version(v2);
 
                 // Act & Assert
                 Assert.That(version > other, Is.EqualTo(shouldEqual));
@@ -410,8 +409,8 @@ namespace SemanticVersioning.Tests
             public void Less_than_or_equal(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new SemVer(v1);
-                var other = new SemVer(v2);
+                var version = new Version(v1);
+                var other = new Version(v2);
 
                 // Act & Assert
                 Assert.That(version <= other, Is.EqualTo(shouldEqual));
@@ -429,8 +428,8 @@ namespace SemanticVersioning.Tests
             public void Greater_than_or_equal(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new SemVer(v1);
-                var other = new SemVer(v2);
+                var version = new Version(v1);
+                var other = new Version(v2);
 
                 // Act & Assert
                 Assert.That(version >= other, Is.EqualTo(shouldEqual));
@@ -445,7 +444,7 @@ namespace SemanticVersioning.Tests
             public void Should_return_itself()
             {
                 // Arrange
-                var version = new SemVer("1.2.3");
+                var version = new Version("1.2.3");
 
                 // Act
                 var result = version.Increment(IncrementType.Patch);
@@ -462,7 +461,7 @@ namespace SemanticVersioning.Tests
             public void Prerelease(string initial, string expected)
             {
                 // Arrange
-                var version = new SemVer(initial);
+                var version = new Version(initial);
 
                 // Act
                 version.Increment(IncrementType.Prerelease);
@@ -476,7 +475,7 @@ namespace SemanticVersioning.Tests
             public void Patch(string initial, string expected)
             {
                 // Arrange
-                var version = new SemVer(initial);
+                var version = new Version(initial);
 
                 // Act
                 version.Increment(IncrementType.Patch);
@@ -490,7 +489,7 @@ namespace SemanticVersioning.Tests
             public void Minor(string initial, string expected)
             {
                 // Arrange
-                var version = new SemVer(initial);
+                var version = new Version(initial);
 
                 // Act
                 version.Increment(IncrementType.Minor);
@@ -504,7 +503,7 @@ namespace SemanticVersioning.Tests
             public void Major(string initial, string expected)
             {
                 // Arrange
-                var version = new SemVer(initial);
+                var version = new Version(initial);
 
                 // Act
                 version.Increment(IncrementType.Major);
@@ -515,29 +514,29 @@ namespace SemanticVersioning.Tests
         }
     }
 
-    public class TestableSemVer : SemVer
+    public class TestableVersion : Version
     {
-        public TestableSemVer()
+        public TestableVersion()
         {
         }
 
-        public TestableSemVer(string version, bool loose = false) : base(version, loose)
+        public TestableVersion(string version, bool loose = false) : base(version, loose)
         {
         }
 
-        public new int ComparePre(SemVer other)
+        public new int ComparePre(Version other)
         {
             return base.ComparePre(other);
         }
 
-        public new int CompareMain(SemVer other)
+        public new int CompareMain(Version other)
         {
             return base.CompareMain(other);
         }
 
         public static new int CompareIdentifiers(object a, object b)
         {
-            return SemVer.CompareIdentifiers(a, b);
+            return Version.CompareIdentifiers(a, b);
         }
     }
 }
