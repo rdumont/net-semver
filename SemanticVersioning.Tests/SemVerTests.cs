@@ -438,6 +438,81 @@ namespace SemanticVersioning.Tests
                 Assert.That(v1 >= other, Is.EqualTo(shouldEqual));
             }
         }
+
+        class Increment
+        {
+            [Test]
+            public void Should_return_itself()
+            {
+                // Arrange
+                var version = new SemVer("1.2.3");
+
+                // Act
+                var result = version.Increment(IncrementType.Patch);
+
+                // Assert
+                Assert.That(result, Is.SameAs(version));
+            }
+
+            [TestCase("1.2.3", "1.2.3-0")]
+            [TestCase("1.2.3-beta", "1.2.3-beta.0")]
+            [TestCase("1.2.3-beta.0", "1.2.3-beta.1")]
+            [TestCase("1.2.3-beta.19", "1.2.3-beta.20")]
+            [TestCase("1.2.3-some.1.thing.3.else", "1.2.3-some.1.thing.4.else")]
+            public void Prerelease(string initial, string expected)
+            {
+                // Arrange
+                var version = new SemVer(initial);
+
+                // Act
+                version.Increment(IncrementType.Prerelease);
+
+                // Assert
+                Assert.That(version.ToString(), Is.EqualTo(expected));
+            }
+
+            [TestCase("1.2.3", "1.2.4")]
+            [TestCase("1.2.3-beta.4", "1.2.4")]
+            public void Patch(string initial, string expected)
+            {
+                // Arrange
+                var version = new SemVer(initial);
+
+                // Act
+                version.Increment(IncrementType.Patch);
+
+                // Assert
+                Assert.That(version.ToString(), Is.EqualTo(expected));
+            }
+
+            [TestCase("1.2.3", "1.3.0")]
+            [TestCase("1.2.3-beta.4", "1.3.0")]
+            public void Minor(string initial, string expected)
+            {
+                // Arrange
+                var version = new SemVer(initial);
+
+                // Act
+                version.Increment(IncrementType.Minor);
+
+                // Assert
+                Assert.That(version.ToString(), Is.EqualTo(expected));
+            }
+
+            [TestCase("1.2.3", "2.0.0")]
+            [TestCase("1.2.3-beta.4", "2.0.0")]
+            public void Major(string initial, string expected)
+            {
+                // Arrange
+                var version = new SemVer(initial);
+
+                // Act
+                version.Increment(IncrementType.Major);
+
+                // Assert
+                Assert.That(version.ToString(), Is.EqualTo(expected));
+            }
+        }
     }
 
     public class TestableSemVer : SemVer

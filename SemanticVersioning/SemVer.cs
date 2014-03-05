@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SemanticVersioning
@@ -180,6 +182,48 @@ namespace SemanticVersioning
                 return -1;
 
             return 1;
+        }
+
+        public SemVer Increment(IncrementType type)
+        {
+            switch (type)
+            {
+                case IncrementType.Major:
+                    this.Major++;
+                    this.Minor = -1;
+                    goto case IncrementType.Minor;
+                case IncrementType.Minor:
+                    this.Minor++;
+                    this.Patch = -1;
+                    goto case IncrementType.Patch;
+                case IncrementType.Patch:
+                    this.Patch++;
+                    this.Prerelease = new object[0];
+                    break;
+                case IncrementType.Prerelease:
+                    if (this.Prerelease.Length == 0)
+                        this.Prerelease = new object[] {0};
+                    else
+                    {
+                        var incrementedSomething = false;
+                        for (var i = this.Prerelease.Length - 1; i >= 0; i--)
+                        {
+                            if (this.Prerelease[i] is int)
+                            {
+                                this.Prerelease[i] = (int) this.Prerelease[i] + 1;
+                                incrementedSomething = true;
+                                break;
+                            }
+                        }
+                        if (!incrementedSomething)
+                            this.Prerelease = new List<object>(this.Prerelease) {0}.ToArray();
+                    }
+                    break;
+                default:
+                    throw new ArgumentException("Invalid increment: " + type, "type");
+            }
+            this.Format();
+            return this;
         }
 
         public bool Equals(SemVer other)
