@@ -343,6 +343,8 @@ namespace SemanticVersioning.Tests
 
                 // Act & Assert
                 Assert.That(version == other, Is.EqualTo(shouldEqual));
+                Assert.That(version == v2, Is.EqualTo(shouldEqual));
+                Assert.That(v1 == other, Is.EqualTo(shouldEqual));
             }
 
             [TestCase("1.2.3", "1.2.3", false)]
@@ -356,6 +358,8 @@ namespace SemanticVersioning.Tests
 
                 // Act & Assert
                 Assert.That(version != other, Is.EqualTo(shouldEqual));
+                Assert.That(version != v2, Is.EqualTo(shouldEqual));
+                Assert.That(v1 != other, Is.EqualTo(shouldEqual));
             }
 
             [TestCase("1.2.3-beta", "1.2.3-beta.0", true)]
@@ -373,6 +377,8 @@ namespace SemanticVersioning.Tests
 
                 // Act & Assert
                 Assert.That(version < other, Is.EqualTo(shouldEqual));
+                Assert.That(version < v2, Is.EqualTo(shouldEqual));
+                Assert.That(v1 < other, Is.EqualTo(shouldEqual));
             }
 
             [TestCase("1.2.3-beta.0", "1.2.3-beta", true)]
@@ -390,6 +396,8 @@ namespace SemanticVersioning.Tests
 
                 // Act & Assert
                 Assert.That(version > other, Is.EqualTo(shouldEqual));
+                Assert.That(version > v2, Is.EqualTo(shouldEqual));
+                Assert.That(v1 > other, Is.EqualTo(shouldEqual));
             }
 
             [TestCase("1.2.3-beta", "1.2.3-beta.0", true)]
@@ -407,6 +415,8 @@ namespace SemanticVersioning.Tests
 
                 // Act & Assert
                 Assert.That(version <= other, Is.EqualTo(shouldEqual));
+                Assert.That(version <= v2, Is.EqualTo(shouldEqual));
+                Assert.That(v1 <= other, Is.EqualTo(shouldEqual));
             }
 
             [TestCase("1.2.3-beta.0", "1.2.3-beta", true)]
@@ -424,6 +434,8 @@ namespace SemanticVersioning.Tests
 
                 // Act & Assert
                 Assert.That(version >= other, Is.EqualTo(shouldEqual));
+                Assert.That(version >= v2, Is.EqualTo(shouldEqual));
+                Assert.That(v1 >= other, Is.EqualTo(shouldEqual));
             }
         }
     }

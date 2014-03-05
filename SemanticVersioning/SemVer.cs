@@ -37,7 +37,7 @@ namespace SemanticVersioning
             var match = (loose ? Re.Loose : Re.Full).Match(version.Trim());
 
             if (!match.Success)
-                throw new Exception("Invalid Version: " + version);
+                throw new FormatException("Invalid Version: " + version);
 
             _raw = version;
 
@@ -67,13 +67,13 @@ namespace SemanticVersioning
         public static string Valid(string version, bool loose = false)
         {
             var semver = Parse(version, loose);
-            return semver != null ? semver._version : null;
+            return !ReferenceEquals(semver, null) ? semver._version : null;
         }
 
         public static string Clean(string version, bool loose = false)
         {
             var semver = Parse(version, loose);
-            return semver != null ? semver._version : null;
+            return !ReferenceEquals(semver, null) ? semver._version : null;
         }
 
         public string Format()
@@ -103,6 +103,23 @@ namespace SemanticVersioning
         {
             var main = CompareMain(other);
             return main != 0 ? main : ComparePre(other);
+        }
+
+        public int Compare(string other, bool loose = false)
+        {
+            if (string.IsNullOrWhiteSpace(other))
+                throw new ArgumentNullException("other");
+
+            SemVer otherVersion;
+            try
+            {
+                otherVersion = new SemVer(other, loose);
+            }
+            catch (FormatException exception)
+            {
+                throw new ArgumentException(exception.Message, "other", exception);
+            }
+            return Compare(otherVersion);
         }
 
         protected int CompareMain(SemVer other)
@@ -194,6 +211,8 @@ namespace SemanticVersioning
             }
         }
 
+        #region SemVer Operator Overloads
+
         public static bool operator ==(SemVer v1, SemVer v2)
         {
             if (ReferenceEquals(v1, null))
@@ -233,5 +252,95 @@ namespace SemanticVersioning
         {
             return !(v1 < v2);
         }
+
+        #endregion
+
+        #region SemVer to String Operator Overloads
+
+        public static bool operator ==(SemVer v1, string v2)
+        {
+            if (ReferenceEquals(v1, null))
+                return false;
+            return v1.Compare(v2) == 0;
+        }
+
+        public static bool operator !=(SemVer v1, string v2)
+        {
+            return !(v1 == v2);
+        }
+
+        public static bool operator <(SemVer v1, string v2)
+        {
+            if (ReferenceEquals(v1, null))
+                throw new ArgumentNullException("v1", "Cannot compare null versions");
+            if (string.IsNullOrWhiteSpace(v2))
+                throw new ArgumentNullException("v2", "Cannot compare null versions");
+            return v1.Compare(v2) < 0;
+        }
+
+        public static bool operator >(SemVer v1, string v2)
+        {
+            if (ReferenceEquals(v1, null))
+                throw new ArgumentNullException("v1", "Cannot compare null versions");
+            if (string.IsNullOrWhiteSpace(v2))
+                throw new ArgumentNullException("v2", "Cannot compare null versions");
+            return v1.Compare(v2) > 0;
+        }
+
+        public static bool operator <=(SemVer v1, string v2)
+        {
+            return !(v1 > v2);
+        }
+
+        public static bool operator >=(SemVer v1, string v2)
+        {
+            return !(v1 < v2);
+        }
+
+        #endregion
+
+        #region String to SemVer Operator Overloads
+
+        public static bool operator ==(string v1, SemVer v2)
+        {
+            if (ReferenceEquals(v2, null))
+                return false;
+            return v2.Compare(v1) == 0;
+        }
+
+        public static bool operator !=(string v1, SemVer v2)
+        {
+            return !(v1 == v2);
+        }
+
+        public static bool operator <(string v1, SemVer v2)
+        {
+            if (string.IsNullOrWhiteSpace(v1))
+                throw new ArgumentNullException("v2", "Cannot compare null versions");
+            if (ReferenceEquals(v2, null))
+                throw new ArgumentNullException("v1", "Cannot compare null versions");
+            return v2.Compare(v1) > 0;
+        }
+
+        public static bool operator >(string v1, SemVer v2)
+        {
+            if (string.IsNullOrWhiteSpace(v1))
+                throw new ArgumentNullException("v2", "Cannot compare null versions");
+            if (ReferenceEquals(v2, null))
+                throw new ArgumentNullException("v1", "Cannot compare null versions");
+            return v2.Compare(v1) < 0;
+        }
+
+        public static bool operator <=(string v1, SemVer v2)
+        {
+            return !(v1 > v2);
+        }
+
+        public static bool operator >=(string v1, SemVer v2)
+        {
+            return !(v1 < v2);
+        }
+
+        #endregion
     }
 }
