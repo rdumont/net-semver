@@ -70,5 +70,12 @@
                                           Build + "?";
 
         public const string Loose = "^" + LoosePlain + "$";
+
+        public const string GtLt = "((?:<|>)?=?)";
+
+        // A simple gt/lt/eq thing, or just "" to indicate "any version"
+        public const string ComparatorLoose = "^" + GtLt + "\\s*(" + LoosePlain + ")$|^$";
+
+        public const string Comparator = "^" + GtLt + "\\s*(" + FullPlain + ")$|^$";
     }
 }
