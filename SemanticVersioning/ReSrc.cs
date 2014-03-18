@@ -73,9 +73,75 @@
 
         public const string GtLt = "((?:<|>)?=?)";
 
+        // Something line "2.*" or "1.2.x".
+        // Note that "x.x" is a valid xRange identifier, meaning "any version"
+        // Only the first item is strictly required.
+        private const string XRangeIdentifierLoose = NumericIdentifierLoose + "|x|X|\\*";
+
+        private const string XRangeIdentifier = NumericIdentifier + "|x|X|\\*";
+
+        private const string XRangePlain = "[v=\\s]*(" + XRangeIdentifier + ")" +
+                                           "(?:\\.(" + XRangeIdentifier + ")" +
+                                           "(?:\\.(" + XRangeIdentifier + ")" +
+                                           "(?:(" + Prerelease + ")" +
+                                           ")?)?)?";
+
+        private const string XRangePlainLoose = "[v=\\s]*(" + XRangeIdentifierLoose + ")" +
+                                           "(?:\\.(" + XRangeIdentifierLoose + ")" +
+                                           "(?:\\.(" + XRangeIdentifierLoose + ")" +
+                                           "(?:(" + PrereleaseLoose + ")" +
+                                           ")?)?)?";
+
+        // >=2.x, for example, means >=2.0.0-0
+        // <1.2 would be the same as "<1.0.0-0", though.
+        public const string XRange = "^" + GtLt + "\\s*" + XRangePlain + "$";
+
+        public const string XRangeLoose = "^" + GtLt + "\\s*" + XRangePlainLoose + "$";
+
+        // Tilde ranges.
+        // Meaning is "reasonably at or greater than"
+        private const string LoneTilde = "(?:~>?)";
+
+        public const string TildeTrim = "(\\s*)" + LoneTilde + "\\s+";
+
+        public const string Tilde = "^" + LoneTilde + XRangePlain + "$";
+        
+        public const string TildeLoose = "^" + LoneTilde + XRangePlainLoose + "$";
+
+        // Caret ranges.
+        // Meaning is "at least and backwards compatible with"
+        private const string LoneCaret = "(?:\\^)";
+
+        public const string CaretTrim = "(\\s*)" + LoneCaret + "\\s+";
+
+        public const string Caret = "^" + LoneCaret + XRangePlain + "$";
+        
+        public const string CaretLoose = "^" + LoneCaret + XRangePlainLoose + "$";
+
         // A simple gt/lt/eq thing, or just "" to indicate "any version"
         public const string ComparatorLoose = "^" + GtLt + "\\s*(" + LoosePlain + ")$|^$";
 
         public const string Comparator = "^" + GtLt + "\\s*(" + FullPlain + ")$|^$";
+
+        // An expression to strip any whitespace between the gtlt and the thing
+        // it modifies, so that `> 1.2.3` => `>1.2.3`
+        public const string ComparatorTrim = "(\\s*)" + GtLt +
+                                             "\\s*(" + LoosePlain + "|" + XRangePlain + ")";
+
+        // Something like `1.2.3 - 1.2.4`
+        // Note that these all use the loose form, because they'll be
+        // checked against either the strict or loose comparator form later.
+        public const string HyphenRange = "^\\s*(" + XRangePlain + ")" +
+                                          "\\s+-\\s+" +
+                                          "(" + XRangePlain + ")" +
+                                          "\\s*$";
+
+        public const string HyphenRangeLoose = "^\\s*(" + XRangePlainLoose + ")" +
+                                               "\\s+-\\s+" +
+                                               "(" + XRangePlainLoose + ")" +
+                                               "\\s*$";
+
+        // Star ranges basically just allow anything at all.
+        public const string Star = "(<|>)?=?\\s*\\*";
     }
 }

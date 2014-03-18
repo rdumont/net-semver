@@ -6,6 +6,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticVersioning.Tests", "SemanticVersioning.Tests\SemanticVersioning.Tests.csproj", "{858863AB-F5A7-4618-B27E-673FB610748D}"
 EndProject
 Global
+	GlobalSection(CodealikeProperties) = postSolution
+		SolutionGuid = 5a4fb126-4498-4e22-9581-01800a738e93
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
