@@ -41,9 +41,32 @@ namespace SemanticVersioning
                     return a < b;
                 case "<=":
                     return a <= b;
+                case "":
+                case "=":
+                case "==":
+                    return a == b;
                 default:
                     throw new ArgumentException("Invalid operator: " + op, "op");
             }
+        }
+
+        public static bool Satisfies(string version, string rangeString, bool loose = false)
+        {
+            return Satisfies(new Version(version, loose), rangeString, loose);
+        }
+
+        public static bool Satisfies(Version version, string rangeString, bool loose = false)
+        {
+            Range range;
+            try
+            {
+                range = new Range(rangeString, loose);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+            return range.Test(version);
         }
     }
 }
