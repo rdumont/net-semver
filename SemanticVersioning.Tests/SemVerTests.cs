@@ -90,8 +90,11 @@ namespace SemanticVersioning.Tests
         [TestCase("^1.2", "1.2.0-pre")]
         [TestCase("^1.2.3", "1.2.3-pre")]
         [TestCase(">1", "2.0.0")]
-        public void Satisfies_strict(string range, string version)
+        public void Satisfies_strict(string range, string source)
         {
+            // Arrange
+            var version = Version.Parse(source);
+
             // Act
             var satisfies = SemVer.Satisfies(version, range);
 
@@ -102,8 +105,11 @@ namespace SemanticVersioning.Tests
         [TestCase("*", "v1.2.3-foo")]
         [TestCase(">=0.1.97", "v0.1.97")]
         [TestCase("1", "1.0.0beta")]
-        public void Satisfies_loose(string range, string version)
+        public void Satisfies_loose(string range, string source)
         {
+            // Arrange
+            var version = Version.Parse(source, true);
+
             // Act
             var satisfies = SemVer.Satisfies(version, range, true);
 
@@ -161,8 +167,11 @@ namespace SemanticVersioning.Tests
         // invalid ranges never satisfied!
         [TestCase("blerg", "1.2.3")]
         [TestCase("^1.2.3", "2.0.0-pre")]
-        public void Does_not_satisfy_strict(string range, string version)
+        public void Does_not_satisfy_strict(string range, string source)
         {
+            // Arrange
+            var version = Version.Parse(source);
+
             // Act
             var satisfies = SemVer.Satisfies(version, range);
 
@@ -175,8 +184,11 @@ namespace SemanticVersioning.Tests
         [TestCase("<1", "1.0.0beta")]
         [TestCase("< 1", "1.0.0beta")]
         [TestCase("git+https://user:password0123@github.com/foo", "123.0.0")]
-        public void Does_not_satisfy_loose(string range, string version)
+        public void Does_not_satisfy_loose(string range, string source)
         {
+            // Arrange
+            var version = Version.Parse(source, true);
+
             // Act
             var satisfies = SemVer.Satisfies(version, range, true);
 

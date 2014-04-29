@@ -4,25 +4,6 @@ namespace SemanticVersioning
 {
     public static class SemVer
     {
-        public static bool Compare(string a, string op, string b, bool loose = false)
-        {
-            var v1 = Version.Parse(a, loose);
-            var v2 = Version.Parse(b, loose);
-            return Compare(v1, op, v2);
-        }
-
-        public static bool Compare(Version a, string op, string b, bool loose = false)
-        {
-            var v2 = Version.Parse(b, loose);
-            return Compare(a, op, v2);
-        }
-
-        public static bool Compare(string a, string op, Version b, bool loose = false)
-        {
-            var v1 = Version.Parse(a, loose);
-            return Compare(v1, op, b);
-        }
-
         public static bool Compare(Version a, string op, Version b)
         {
             switch (op)
@@ -48,11 +29,6 @@ namespace SemanticVersioning
                 default:
                     throw new ArgumentException("Invalid operator: " + op, "op");
             }
-        }
-
-        public static bool Satisfies(string version, string rangeString, bool loose = false)
-        {
-            return Satisfies(Version.Parse(version, loose), rangeString, loose);
         }
 
         public static bool Satisfies(Version version, string rangeString, bool loose = false)

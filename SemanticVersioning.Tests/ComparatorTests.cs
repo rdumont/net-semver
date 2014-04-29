@@ -18,7 +18,7 @@ namespace SemanticVersioning.Tests
             var comparator = new Comparator(comp);
 
             // Act
-            var result = comparator.Test(version);
+            var result = comparator.Test(Version.Parse(version));
 
             // Assert
             Assert.That(result, Is.True);
@@ -37,7 +37,7 @@ namespace SemanticVersioning.Tests
             var comparator = new Comparator(comp);
 
             // Act
-            var result = comparator.Test(version);
+            var result = comparator.Test(Version.Parse(version));
 
             // Assert
             Assert.That(result, Is.False);

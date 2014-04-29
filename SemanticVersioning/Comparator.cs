@@ -49,19 +49,14 @@ namespace SemanticVersioning
                 Value = Operator + _semver;
         }
 
-        public override string ToString()
-        {
-            return Value;
-        }
-
-        public bool Test(string version)
-        {
-            return ReferenceEquals(_semver, Any) || SemVer.Compare(version, Operator, _semver, Loose);
-        }
-
         public bool Test(Version version)
         {
             return ReferenceEquals(_semver, Any) || SemVer.Compare(version, Operator, _semver);
+        }
+        
+        public override string ToString()
+        {
+            return Value;
         }
     }
 }
