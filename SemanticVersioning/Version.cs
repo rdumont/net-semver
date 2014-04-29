@@ -154,11 +154,6 @@ namespace SemanticVersioning
             return !ReferenceEquals(semver, null) ? semver._version : null;
         }
 
-        public string Inspect()
-        {
-            return string.Format("SemVer \"{0}\">", this);
-        }
-
         public int Compare(Version other)
         {
             var main = CompareMain(other);

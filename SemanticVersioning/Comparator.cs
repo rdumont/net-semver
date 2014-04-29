@@ -49,11 +49,6 @@ namespace SemanticVersioning
                 Value = Operator + _semver;
         }
 
-        public string Inspect()
-        {
-            return string.Format("<SemVer Comparator \"{0}\"", this);
-        }
-
         public override string ToString()
         {
             return Value;

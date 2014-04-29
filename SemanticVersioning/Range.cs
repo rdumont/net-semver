@@ -28,11 +28,6 @@ namespace SemanticVersioning
             this.Format();
         }
 
-        public string Inspect()
-        {
-            return string.Format("<SemVer Range \"{0}\">", _range);
-        }
-
         public string Format()
         {
             _range = string.Join("||", _set.Select(comps => string.Join(" ", comps.Select(c => c.ToString()))));
