@@ -6,20 +6,20 @@ namespace SemanticVersioning
     {
         public static bool Compare(string a, string op, string b, bool loose = false)
         {
-            var v1 = new Version(a, loose);
-            var v2 = new Version(b, loose);
+            var v1 = Version.Parse(a, loose);
+            var v2 = Version.Parse(b, loose);
             return Compare(v1, op, v2);
         }
 
         public static bool Compare(Version a, string op, string b, bool loose = false)
         {
-            var v2 = new Version(b, loose);
+            var v2 = Version.Parse(b, loose);
             return Compare(a, op, v2);
         }
 
         public static bool Compare(string a, string op, Version b, bool loose = false)
         {
-            var v1 = new Version(a, loose);
+            var v1 = Version.Parse(a, loose);
             return Compare(v1, op, b);
         }
 
@@ -52,7 +52,7 @@ namespace SemanticVersioning
 
         public static bool Satisfies(string version, string rangeString, bool loose = false)
         {
-            return Satisfies(new Version(version, loose), rangeString, loose);
+            return Satisfies(Version.Parse(version, loose), rangeString, loose);
         }
 
         public static bool Satisfies(Version version, string rangeString, bool loose = false)

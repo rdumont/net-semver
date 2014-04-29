@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SemanticVersioning
 {
@@ -98,37 +99,47 @@ namespace SemanticVersioning
         {
         }
 
-        public Version(string version, bool loose = false)
+        public static Version Parse(string source, bool loose = false)
         {
-            _loose = loose;
-            var match = (loose ? Re.Loose : Re.Full).Match(version.Trim());
+            Version version;
+            if(TryParse(source, out version, loose))
+                return version;
 
-            if (!match.Success)
-                throw new FormatException("Invalid Version: " + version);
-
-            _raw = version;
-
-            _major = int.Parse(match.Groups[1].Value);
-            _minor = int.Parse(match.Groups[2].Value);
-            _patch = int.Parse(match.Groups[3].Value);
-
-            if (!match.Groups[4].Success)
-                _prerelease = new object[] {};
-            else
-                _prerelease = match.Groups[4].Value.Split('.').Select(id =>
-                    Re.Integer.IsMatch(id) ? int.Parse(id) : (object) id).ToArray();
-
-            _build = match.Groups[5].Success
-                ? match.Groups[5].Value.Split('.').ToArray()
-                : new string[] {};
-
-            Format();
+            throw new FormatException("Invalid Version: " + source);
         }
 
-        public static Version Parse(string version, bool loose = false)
+        public static bool TryParse(string source, out Version version, bool loose = false)
         {
-            var regex = loose ? Re.Loose : Re.Full;
-            return regex.IsMatch(version) ? new Version(version, loose) : null;
+            if (source == null)
+                throw new ArgumentNullException("source");
+
+            var match = (loose ? Re.Loose : Re.Full).Match(source.Trim());
+            if (!match.Success)
+            {
+                version = null;
+                return false;
+            }
+            version = Parse(match, source, loose);
+            return true;
+        }
+
+        private static Version Parse(Match match, string source, bool loose)
+        {
+            var major = int.Parse(match.Groups[1].Value);
+            var minor = int.Parse(match.Groups[2].Value);
+            var patch = int.Parse(match.Groups[3].Value);
+
+            var preGroup = match.Groups[4];
+            var prerelease = preGroup.Success
+                ? preGroup.Value.Split('.').Select(id => Re.Integer.IsMatch(id) ? int.Parse(id) : (object)id).ToArray()
+                : new object[] { };
+
+            var buildGroup = match.Groups[5];
+            var build = buildGroup.Success
+                ? buildGroup.Value.Split('.').ToArray()
+                : new string[] { };
+
+            return new Version(major, minor, patch, prerelease, build, loose, source);
         }
 
         public static string Valid(string version, bool loose = false)
@@ -141,13 +152,6 @@ namespace SemanticVersioning
         {
             var semver = Parse(version, loose);
             return !ReferenceEquals(semver, null) ? semver._version : null;
-        }
-
-        private void Format()
-        {
-            _version = _major + "." + _minor + "." + _patch;
-            if (_prerelease.Length > 0)
-                _version += "-" + string.Join(".", _prerelease);
         }
 
         public string Inspect()
@@ -179,7 +183,7 @@ namespace SemanticVersioning
             Version otherVersion;
             try
             {
-                otherVersion = new Version(other, loose);
+                otherVersion = Parse(other, loose);
             }
             catch (FormatException exception)
             {
@@ -317,6 +321,13 @@ namespace SemanticVersioning
                 hashCode = (hashCode * 397) ^ _build.GetHashCode();
                 return hashCode;
             }
+        }
+
+        private void Format()
+        {
+            _version = _major + "." + _minor + "." + _patch;
+            if (_prerelease.Length > 0)
+                _version += "-" + string.Join(".", _prerelease);
         }
 
         #region SemVer Operator Overloads

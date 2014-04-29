@@ -4,7 +4,7 @@ namespace SemanticVersioning
 {
     public class Comparator
     {
-        private static readonly Version Any = new Version("0.0.0");
+        private static readonly Version Any = new Version(0, 0, 0);
         private readonly Version _semver;
 
         public string Operator { get; private set; }
@@ -28,7 +28,7 @@ namespace SemanticVersioning
                 _semver = Any;
             else
             {
-                _semver = new Version(match.Groups[2].Value, this.Loose);
+                _semver = Version.Parse(match.Groups[2].Value, this.Loose);
 
                 // <1.2.3-rc DOES allow 1.2.3-beta (has prerelease)
                 // >=1.2.3 DOES NOT allow 1.2.3-beta

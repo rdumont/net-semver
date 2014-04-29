@@ -9,7 +9,7 @@ namespace SemanticVersioning.Tests
         public void Parse_strict_full_version()
         {
             // Act
-            var version = new Version("1.2.3-beta.4+release.55");
+            var version = Version.Parse("1.2.3-beta.4+release.55");
 
             // Assert
             Assert.That(version.Major, Is.EqualTo(1));
@@ -23,7 +23,7 @@ namespace SemanticVersioning.Tests
         public void Parse_loose_version()
         {
             // Act
-            var version = new Version("=1.2.3beta.4", true);
+            var version = Version.Parse("=1.2.3beta.4", true);
 
             // Assert
             Assert.That(version.Major, Is.EqualTo(1));
@@ -36,7 +36,7 @@ namespace SemanticVersioning.Tests
         public void Should_accept_leading_v_character()
         {
             // Act
-            var version = new Version("v1.2.3-beta.4+release.55");
+            var version = Version.Parse("v1.2.3-beta.4+release.55");
 
             // Assert
             Assert.That(version.Major, Is.EqualTo(1));
@@ -50,7 +50,7 @@ namespace SemanticVersioning.Tests
         public void Should_throw_error_for_invalid_version()
         {
             // Act & Assert
-            Assert.That(() => new Version("a.b.c"),
+            Assert.That(() => Version.Parse("a.b.c"),
                 Throws.Exception);
         }
 
@@ -337,8 +337,8 @@ namespace SemanticVersioning.Tests
             public void Equals(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new Version(v1);
-                var other = new Version(v2);
+                var version = Version.Parse(v1);
+                var other = Version.Parse(v2);
 
                 // Act & Assert
                 Assert.That(version == other, Is.EqualTo(shouldEqual));
@@ -352,8 +352,8 @@ namespace SemanticVersioning.Tests
             public void Not_equals(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new Version(v1);
-                var other = new Version(v2);
+                var version = Version.Parse(v1);
+                var other = Version.Parse(v2);
 
                 // Act & Assert
                 Assert.That(version != other, Is.EqualTo(shouldEqual));
@@ -371,8 +371,8 @@ namespace SemanticVersioning.Tests
             public void Less_than(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new Version(v1);
-                var other = new Version(v2);
+                var version = Version.Parse(v1);
+                var other = Version.Parse(v2);
 
                 // Act & Assert
                 Assert.That(version < other, Is.EqualTo(shouldEqual));
@@ -390,8 +390,8 @@ namespace SemanticVersioning.Tests
             public void Greater_than(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new Version(v1);
-                var other = new Version(v2);
+                var version = Version.Parse(v1);
+                var other = Version.Parse(v2);
 
                 // Act & Assert
                 Assert.That(version > other, Is.EqualTo(shouldEqual));
@@ -409,8 +409,8 @@ namespace SemanticVersioning.Tests
             public void Less_than_or_equal(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new Version(v1);
-                var other = new Version(v2);
+                var version = Version.Parse(v1);
+                var other = Version.Parse(v2);
 
                 // Act & Assert
                 Assert.That(version <= other, Is.EqualTo(shouldEqual));
@@ -428,8 +428,8 @@ namespace SemanticVersioning.Tests
             public void Greater_than_or_equal(string v1, string v2, bool shouldEqual)
             {
                 // Arrange
-                var version = new Version(v1);
-                var other = new Version(v2);
+                var version = Version.Parse(v1);
+                var other = Version.Parse(v2);
 
                 // Act & Assert
                 Assert.That(version >= other, Is.EqualTo(shouldEqual));
@@ -444,7 +444,7 @@ namespace SemanticVersioning.Tests
             public void Should_return_itself()
             {
                 // Arrange
-                var version = new Version("1.2.3");
+                var version = Version.Parse("1.2.3");
 
                 // Act
                 var result = version.Increment(IncrementType.Patch);
@@ -461,7 +461,7 @@ namespace SemanticVersioning.Tests
             public void Prerelease(string initial, string expected)
             {
                 // Arrange
-                var version = new Version(initial);
+                var version = Version.Parse(initial);
 
                 // Act
                 version.Increment(IncrementType.Prerelease);
@@ -475,7 +475,7 @@ namespace SemanticVersioning.Tests
             public void Patch(string initial, string expected)
             {
                 // Arrange
-                var version = new Version(initial);
+                var version = Version.Parse(initial);
 
                 // Act
                 version.Increment(IncrementType.Patch);
@@ -489,7 +489,7 @@ namespace SemanticVersioning.Tests
             public void Minor(string initial, string expected)
             {
                 // Arrange
-                var version = new Version(initial);
+                var version = Version.Parse(initial);
 
                 // Act
                 version.Increment(IncrementType.Minor);
@@ -503,7 +503,7 @@ namespace SemanticVersioning.Tests
             public void Major(string initial, string expected)
             {
                 // Arrange
-                var version = new Version(initial);
+                var version = Version.Parse(initial);
 
                 // Act
                 version.Increment(IncrementType.Major);
@@ -516,14 +516,6 @@ namespace SemanticVersioning.Tests
 
     public class TestableVersion : Version
     {
-        public TestableVersion()
-        {
-        }
-
-        public TestableVersion(string version, bool loose = false) : base(version, loose)
-        {
-        }
-
         public new int ComparePre(Version other)
         {
             return base.ComparePre(other);
