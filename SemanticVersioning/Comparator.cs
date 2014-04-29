@@ -49,7 +49,7 @@ namespace SemanticVersioning
                 Value = Operator + _semver;
         }
 
-        public bool Test(Version version)
+        public bool Matches(Version version)
         {
             return ReferenceEquals(_semver, Any) || SemVer.Compare(version, Operator, _semver);
         }

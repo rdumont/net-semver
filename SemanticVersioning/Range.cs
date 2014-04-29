@@ -49,7 +49,7 @@ namespace SemanticVersioning
 
         private static bool TestSet(IEnumerable<Comparator> comparators, Version version)
         {
-            return comparators.All(comp => comp.Test(version));
+            return comparators.All(comp => comp.Matches(version));
         }
 
         private Comparator[] ParseRange(string range)
