@@ -6,30 +6,96 @@ namespace SemanticVersioning
 {
     public class Version : ICloneable, IEquatable<Version>
     {
+        private int _major;
+        private int _minor;
+        private int _patch;
+        private object[] _prerelease;
+        private string[] _build;
+
         private readonly bool _loose;
         private readonly string _raw;
         private string _version;
 
-        public int Major { get; set; }
-        public int Minor { get; set; }
-        public int Patch { get; set; }
-        public object[] Prerelease { get; set; }
-        public string[] Build { get; set; }
+        public int Major
+        {
+            get { return _major; }
+            set
+            {
+                _major = value;
+                Format();
+            }
+        }
 
-        protected Version()
+        public int Minor
+        {
+            get { return _minor; }
+            set
+            {
+                _minor = value;
+                Format();
+            }
+        }
+
+        public int Patch
+        {
+            get { return _patch; }
+            set
+            {
+                _patch = value;
+                Format();
+            }
+        }
+
+        public object[] Prerelease
+        {
+            get { return _prerelease; }
+            set
+            {
+                _prerelease = value ?? new object[0];
+                Format();
+            }
+        }
+
+        public string[] Build
+        {
+            get { return _build; }
+            set
+            {
+                _build = value ?? new string[0];
+                Format();
+            }
+        }
+
+        public Version(int major, int minor, int patch)
+            : this(major, minor, patch, null, null)
         {
         }
 
-        public Version(Version version)
+        public Version(int major, int minor, int patch, object[] prerelease)
+            : this(major, minor, patch, prerelease, null)
         {
-            _loose = version._loose;
-            _raw = version._raw;
-            _version = version._version;
-            Major = version.Major;
-            Minor = version.Minor;
-            Patch = version.Patch;
-            Prerelease = (object[]) version.Prerelease.Clone();
-            Build = (string[]) version.Build.Clone();
+        }
+
+        public Version(int major, int minor, int patch, object[] prerelease, string[] build)
+            : this(major, minor, patch, prerelease, build, false, string.Empty)
+        {
+        }
+
+        private Version(int major, int minor, int patch, object[] prerelease, string[] build, bool loose, string raw)
+        {
+            _major = major;
+            _minor = minor;
+            _patch = patch;
+            _prerelease = prerelease ?? new object[0];
+            _build = build ?? new string[0];
+            _loose = loose;
+            _raw = raw;
+            Format();
+        }
+
+        protected Version()
+            : this(0, 0, 0, null, null)
+        {
         }
 
         public Version(string version, bool loose = false)
@@ -42,17 +108,17 @@ namespace SemanticVersioning
 
             _raw = version;
 
-            Major = int.Parse(match.Groups[1].Value);
-            Minor = int.Parse(match.Groups[2].Value);
-            Patch = int.Parse(match.Groups[3].Value);
+            _major = int.Parse(match.Groups[1].Value);
+            _minor = int.Parse(match.Groups[2].Value);
+            _patch = int.Parse(match.Groups[3].Value);
 
             if (!match.Groups[4].Success)
-                Prerelease = new object[] {};
+                _prerelease = new object[] {};
             else
-                Prerelease = match.Groups[4].Value.Split('.').Select(id =>
+                _prerelease = match.Groups[4].Value.Split('.').Select(id =>
                     Re.Integer.IsMatch(id) ? int.Parse(id) : (object) id).ToArray();
 
-            Build = match.Groups[5].Success
+            _build = match.Groups[5].Success
                 ? match.Groups[5].Value.Split('.').ToArray()
                 : new string[] {};
 
@@ -77,12 +143,11 @@ namespace SemanticVersioning
             return !ReferenceEquals(semver, null) ? semver._version : null;
         }
 
-        public string Format()
+        private void Format()
         {
-            _version = Major + "." + Minor + "." + Patch;
-            if (Prerelease.Length > 0)
-                _version += "-" + string.Join(".", Prerelease);
-            return _version;
+            _version = _major + "." + _minor + "." + _patch;
+            if (_prerelease.Length > 0)
+                _version += "-" + string.Join(".", _prerelease);
         }
 
         public string Inspect()
@@ -97,7 +162,7 @@ namespace SemanticVersioning
 
         public object Clone()
         {
-            return new Version(this);
+            return new Version(_major, _minor, _patch, _prerelease, _build, _loose, _raw);
         }
 
         public int Compare(Version other)
@@ -125,36 +190,36 @@ namespace SemanticVersioning
 
         protected int CompareMain(Version other)
         {
-            var major = CompareIdentifiers(Major, other.Major);
+            var major = CompareIdentifiers(_major, other._major);
             if (major != 0) return major;
             
-            var minor = CompareIdentifiers(Minor, other.Minor);
+            var minor = CompareIdentifiers(_minor, other._minor);
             if (minor != 0) return minor;
 
-            return CompareIdentifiers(Patch, other.Patch);
+            return CompareIdentifiers(_patch, other._patch);
         }
 
         protected int ComparePre(Version other)
         {
             // NOT having a prerelease is > having one
-            if (this.Prerelease.Length > 0 && other.Prerelease.Length == 0)
+            if (this._prerelease.Length > 0 && other._prerelease.Length == 0)
                 return -1;
 
-            if (this.Prerelease.Length == 0 && other.Prerelease.Length > 0)
+            if (this._prerelease.Length == 0 && other._prerelease.Length > 0)
                 return 1;
 
-            if (this.Prerelease.Length == 0 && other.Prerelease.Length == 0)
+            if (this._prerelease.Length == 0 && other._prerelease.Length == 0)
                 return 0;
 
-            for (var i = 0; i < Math.Max(this.Prerelease.Length, other.Prerelease.Length); i++)
+            for (var i = 0; i < Math.Max(this._prerelease.Length, other._prerelease.Length); i++)
             {
-                if (other.Prerelease.Length == i)
+                if (other._prerelease.Length == i)
                     return 1;
 
-                if (this.Prerelease.Length == i)
+                if (this._prerelease.Length == i)
                     return -1;
 
-                var compare = CompareIdentifiers(this.Prerelease[i], other.Prerelease[i]);
+                var compare = CompareIdentifiers(this._prerelease[i], other._prerelease[i]);
                 if (compare != 0)
                     return compare;
             }
@@ -188,34 +253,34 @@ namespace SemanticVersioning
             switch (type)
             {
                 case IncrementType.Major:
-                    this.Major++;
-                    this.Minor = -1;
+                    _major++;
+                    _minor = -1;
                     goto case IncrementType.Minor;
                 case IncrementType.Minor:
-                    this.Minor++;
-                    this.Patch = -1;
+                    _minor++;
+                    _patch = -1;
                     goto case IncrementType.Patch;
                 case IncrementType.Patch:
-                    this.Patch++;
-                    this.Prerelease = new object[0];
+                    _patch++;
+                    _prerelease = new object[0];
                     break;
                 case IncrementType.Prerelease:
-                    if (this.Prerelease.Length == 0)
-                        this.Prerelease = new object[] {0};
+                    if (_prerelease.Length == 0)
+                        _prerelease = new object[] {0};
                     else
                     {
                         var incrementedSomething = false;
-                        for (var i = this.Prerelease.Length - 1; i >= 0; i--)
+                        for (var i = _prerelease.Length - 1; i >= 0; i--)
                         {
-                            if (this.Prerelease[i] is int)
+                            if (_prerelease[i] is int)
                             {
-                                this.Prerelease[i] = (int) this.Prerelease[i] + 1;
+                                _prerelease[i] = (int) _prerelease[i] + 1;
                                 incrementedSomething = true;
                                 break;
                             }
                         }
                         if (!incrementedSomething)
-                            this.Prerelease = new List<object>(this.Prerelease) {0}.ToArray();
+                            _prerelease = new List<object>(_prerelease) {0}.ToArray();
                     }
                     break;
                 default:
@@ -245,11 +310,11 @@ namespace SemanticVersioning
             unchecked
             {
                 var hashCode = _loose.GetHashCode();
-                hashCode = (hashCode * 397) ^ Major;
-                hashCode = (hashCode * 397) ^ Minor;
-                hashCode = (hashCode * 397) ^ Patch;
-                hashCode = (hashCode * 397) ^ Prerelease.GetHashCode();
-                hashCode = (hashCode * 397) ^ Build.GetHashCode();
+                hashCode = (hashCode * 397) ^ _major;
+                hashCode = (hashCode * 397) ^ _minor;
+                hashCode = (hashCode * 397) ^ _patch;
+                hashCode = (hashCode * 397) ^ _prerelease.GetHashCode();
+                hashCode = (hashCode * 397) ^ _build.GetHashCode();
                 return hashCode;
             }
         }

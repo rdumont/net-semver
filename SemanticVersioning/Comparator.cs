@@ -40,7 +40,6 @@ namespace SemanticVersioning
                 if (this.Operator == "<" && _semver.Prerelease.Length == 0)
                 {
                     _semver.Prerelease = new object[] {0};
-                    _semver.Format();
                 }
             }
 
