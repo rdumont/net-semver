@@ -159,37 +159,10 @@ namespace SemanticVersioning
             return string.Format("SemVer \"{0}\">", this);
         }
 
-        public override string ToString()
-        {
-            return _version;
-        }
-
-        public object Clone()
-        {
-            return new Version(_major, _minor, _patch, _prerelease, _build, _loose, _raw);
-        }
-
         public int Compare(Version other)
         {
             var main = CompareMain(other);
             return main != 0 ? main : ComparePre(other);
-        }
-
-        public int Compare(string other, bool loose = false)
-        {
-            if (string.IsNullOrWhiteSpace(other))
-                throw new ArgumentNullException("other");
-
-            Version otherVersion;
-            try
-            {
-                otherVersion = Parse(other, loose);
-            }
-            catch (FormatException exception)
-            {
-                throw new ArgumentException(exception.Message, "other", exception);
-            }
-            return Compare(otherVersion);
         }
 
         protected int CompareMain(Version other)
@@ -294,6 +267,11 @@ namespace SemanticVersioning
             return this;
         }
 
+        public object Clone()
+        {
+            return new Version(_major, _minor, _patch, _prerelease, _build, _loose, _raw);
+        }
+
         public bool Equals(Version other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -321,6 +299,11 @@ namespace SemanticVersioning
                 hashCode = (hashCode * 397) ^ _build.GetHashCode();
                 return hashCode;
             }
+        }
+
+        public override string ToString()
+        {
+            return _version;
         }
 
         private void Format()
@@ -380,7 +363,7 @@ namespace SemanticVersioning
         {
             if (ReferenceEquals(v1, null))
                 return false;
-            return v1.Compare(v2) == 0;
+            return v1.Compare(Parse(v2, v1._loose)) == 0;
         }
 
         public static bool operator !=(Version v1, string v2)
@@ -394,7 +377,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
             if (string.IsNullOrWhiteSpace(v2))
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
-            return v1.Compare(v2) < 0;
+            return v1.Compare(Parse(v2, v1._loose)) < 0;
         }
 
         public static bool operator >(Version v1, string v2)
@@ -403,7 +386,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
             if (string.IsNullOrWhiteSpace(v2))
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
-            return v1.Compare(v2) > 0;
+            return v1.Compare(Parse(v2, v1._loose)) > 0;
         }
 
         public static bool operator <=(Version v1, string v2)
@@ -424,7 +407,7 @@ namespace SemanticVersioning
         {
             if (ReferenceEquals(v2, null))
                 return false;
-            return v2.Compare(v1) == 0;
+            return v2.Compare(Parse(v1, v2._loose)) == 0;
         }
 
         public static bool operator !=(string v1, Version v2)
@@ -438,7 +421,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
             if (ReferenceEquals(v2, null))
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
-            return v2.Compare(v1) > 0;
+            return v2.Compare(Parse(v1, v2._loose)) > 0;
         }
 
         public static bool operator >(string v1, Version v2)
@@ -447,7 +430,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
             if (ReferenceEquals(v2, null))
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
-            return v2.Compare(v1) < 0;
+            return v2.Compare(Parse(v1, v2._loose)) < 0;
         }
 
         public static bool operator <=(string v1, Version v2)
