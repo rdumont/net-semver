@@ -15,7 +15,7 @@ namespace SemanticVersioning.Tests
             Assert.That(version.Major, Is.EqualTo(1));
             Assert.That(version.Minor, Is.EqualTo(2));
             Assert.That(version.Patch, Is.EqualTo(3));
-            Assert.That(version.Prerelease, Is.EqualTo(new object[] {"beta", 4}));
+            Assert.That(version.Prerelease, Is.EqualTo(new VersionIdentifier[] { "beta", 4 }));
             Assert.That(version.Build, Is.EqualTo(new[] {"release", "55"}));
         }
 
@@ -29,7 +29,7 @@ namespace SemanticVersioning.Tests
             Assert.That(version.Major, Is.EqualTo(1));
             Assert.That(version.Minor, Is.EqualTo(2));
             Assert.That(version.Patch, Is.EqualTo(3));
-            Assert.That(version.Prerelease, Is.EqualTo(new object[] { "beta", 4 }));
+            Assert.That(version.Prerelease, Is.EqualTo(new VersionIdentifier[] { "beta", 4 }));
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace SemanticVersioning.Tests
             Assert.That(version.Major, Is.EqualTo(1));
             Assert.That(version.Minor, Is.EqualTo(2));
             Assert.That(version.Patch, Is.EqualTo(3));
-            Assert.That(version.Prerelease, Is.EqualTo(new object[] { "beta", 4 }));
+            Assert.That(version.Prerelease, Is.EqualTo(new VersionIdentifier[] { "beta", 4 }));
             Assert.That(version.Build, Is.EqualTo(new[] { "release", "55" }));
         }
 
@@ -54,45 +54,14 @@ namespace SemanticVersioning.Tests
                 Throws.Exception);
         }
 
-        class CompareIdentifiers
-        {
-            [TestCase("x", "x")]
-            [TestCase("abc", "abc")]
-            [TestCase("", "")]
-            [TestCase(123, 123)]
-            public void Equal(object a, object b)
-            {
-                // Act & Assert
-                Assert.That(TestableVersion.CompareIdentifiers(a, b), Is.EqualTo(0));
-            }
-
-            [TestCase(2, 1)]
-            [TestCase("abc", 123)]
-            [TestCase("b", "a")]
-            public void Positive_result(object a, object b)
-            {
-                // Act & Assert
-                Assert.That(TestableVersion.CompareIdentifiers(a, b), Is.EqualTo(1));
-            }
-
-            [TestCase(1, 2)]
-            [TestCase(123, "abc")]
-            [TestCase("a", "b")]
-            public void Negative_result(object a, object b)
-            {
-                // Act & Assert
-                Assert.That(TestableVersion.CompareIdentifiers(a, b), Is.EqualTo(-1));
-            }
-        }
-
         class ComparePre
         {
             [Test]
             public void Equal_prereleases()
             {
                 // Arrange
-                var version = new TestableVersion {Prerelease = new object[] {"beta", 3}};
-                var other = new TestableVersion {Prerelease = new object[] {"beta", 3}};
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta", 3 } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta", 3 } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -105,8 +74,8 @@ namespace SemanticVersioning.Tests
             public void Greater_prerelease_string()
             {
                 // Arrange
-                var version = new TestableVersion {Prerelease = new object[] {"beta"}};
-                var other = new TestableVersion {Prerelease = new object[] {"alpha"}};
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta" } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { "alpha" } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -119,8 +88,8 @@ namespace SemanticVersioning.Tests
             public void Extra_prerelease_number()
             {
                 // Arrange
-                var version = new TestableVersion {Prerelease = new object[] {"beta", 1}};
-                var other = new TestableVersion {Prerelease = new object[] {"beta"}};
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta", 1 } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta" } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -133,8 +102,8 @@ namespace SemanticVersioning.Tests
             public void Greater_prerelease_number()
             {
                 // Arrange
-                var version = new TestableVersion {Prerelease = new object[] {"beta", 5}};
-                var other = new TestableVersion {Prerelease = new object[] {"beta", 4}};
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta", 5 } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta", 4 } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -147,8 +116,8 @@ namespace SemanticVersioning.Tests
             public void Smaller_prerelease_string()
             {
                 // Arrange
-                var version = new TestableVersion { Prerelease = new object[] { "beta" } };
-                var other = new TestableVersion { Prerelease = new object[] { "delta" } };
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta" } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { "delta" } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -161,8 +130,8 @@ namespace SemanticVersioning.Tests
             public void Less_prerelease_number()
             {
                 // Arrange
-                var version = new TestableVersion { Prerelease = new object[] { "beta" } };
-                var other = new TestableVersion { Prerelease = new object[] { "beta", 1 } };
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta" } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta", 1 } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -175,8 +144,8 @@ namespace SemanticVersioning.Tests
             public void Smaller_prerelease_number()
             {
                 // Arrange
-                var version = new TestableVersion { Prerelease = new object[] { "beta", 4 } };
-                var other = new TestableVersion { Prerelease = new object[] { "beta", 5 } };
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta", 4 } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta", 5 } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -189,8 +158,8 @@ namespace SemanticVersioning.Tests
             public void Release_should_be_greater_than_prerelease()
             {
                 // Arrange
-                var version = new TestableVersion {Prerelease = new object[] {}};
-                var other = new TestableVersion {Prerelease = new object[] {"beta"}};
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta" } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -203,8 +172,8 @@ namespace SemanticVersioning.Tests
             public void Prerelease_should_be_smaller_than_release()
             {
                 // Arrange
-                var version = new TestableVersion {Prerelease = new object[] {"beta"}};
-                var other = new TestableVersion {Prerelease = new object[] {}};
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { "beta" } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -217,8 +186,8 @@ namespace SemanticVersioning.Tests
             public void Should_equal_without_prerelease()
             {
                 // Arrange
-                var version = new TestableVersion {Prerelease = new object[] {}};
-                var other = new TestableVersion {Prerelease = new object[] {}};
+                var version = new TestableVersion { Prerelease = new VersionIdentifier[] { } };
+                var other = new TestableVersion { Prerelease = new VersionIdentifier[] { } };
 
                 // Act
                 var result = version.ComparePre(other);
@@ -524,11 +493,6 @@ namespace SemanticVersioning.Tests
         public new int CompareMain(Version other)
         {
             return base.CompareMain(other);
-        }
-
-        public static new int CompareIdentifiers(object a, object b)
-        {
-            return Version.CompareIdentifiers(a, b);
         }
     }
 }

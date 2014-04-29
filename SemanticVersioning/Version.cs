@@ -10,7 +10,7 @@ namespace SemanticVersioning
         private int _major;
         private int _minor;
         private int _patch;
-        private object[] _prerelease;
+        private VersionIdentifier[] _prerelease;
         private string[] _build;
 
         private readonly bool _loose;
@@ -47,12 +47,12 @@ namespace SemanticVersioning
             }
         }
 
-        public object[] Prerelease
+        public VersionIdentifier[] Prerelease
         {
             get { return _prerelease; }
             set
             {
-                _prerelease = value ?? new object[0];
+                _prerelease = value ?? new VersionIdentifier[0];
                 Format();
             }
         }
@@ -72,22 +72,23 @@ namespace SemanticVersioning
         {
         }
 
-        public Version(int major, int minor, int patch, object[] prerelease)
+        public Version(int major, int minor, int patch, VersionIdentifier[] prerelease)
             : this(major, minor, patch, prerelease, null)
         {
         }
 
-        public Version(int major, int minor, int patch, object[] prerelease, string[] build)
+        public Version(int major, int minor, int patch, VersionIdentifier[] prerelease, string[] build)
             : this(major, minor, patch, prerelease, build, false, string.Empty)
         {
         }
 
-        private Version(int major, int minor, int patch, object[] prerelease, string[] build, bool loose, string raw)
+        private Version(int major, int minor, int patch, VersionIdentifier[] prerelease, string[] build, bool loose,
+            string raw)
         {
             _major = major;
             _minor = minor;
             _patch = patch;
-            _prerelease = prerelease ?? new object[0];
+            _prerelease = prerelease ?? new VersionIdentifier[0];
             _build = build ?? new string[0];
             _loose = loose;
             _raw = raw;
@@ -131,8 +132,8 @@ namespace SemanticVersioning
 
             var preGroup = match.Groups[4];
             var prerelease = preGroup.Success
-                ? preGroup.Value.Split('.').Select(id => Re.Integer.IsMatch(id) ? int.Parse(id) : (object)id).ToArray()
-                : new object[] { };
+                ? preGroup.Value.Split('.').Select(VersionIdentifier.Parse).ToArray()
+                : new VersionIdentifier[0];
 
             var buildGroup = match.Groups[5];
             var build = buildGroup.Success
@@ -162,13 +163,13 @@ namespace SemanticVersioning
 
         protected int CompareMain(Version other)
         {
-            var major = CompareIdentifiers(_major, other._major);
+            var major = _major.CompareTo(other._major);
             if (major != 0) return major;
-            
-            var minor = CompareIdentifiers(_minor, other._minor);
+
+            var minor = _minor.CompareTo(other._minor);
             if (minor != 0) return minor;
 
-            return CompareIdentifiers(_patch, other._patch);
+            return _patch.CompareTo(other._patch);
         }
 
         protected int ComparePre(Version other)
@@ -191,33 +192,11 @@ namespace SemanticVersioning
                 if (this._prerelease.Length == i)
                     return -1;
 
-                var compare = CompareIdentifiers(this._prerelease[i], other._prerelease[i]);
+                var compare = this._prerelease[i].CompareTo(other._prerelease[i]);
                 if (compare != 0)
                     return compare;
             }
             return 0;
-        }
-
-        protected static int CompareIdentifiers(object a, object b)
-        {
-            var anum = a as int?;
-            var bnum = b as int?;
-            var astr = a.ToString();
-            var bstr = b.ToString();
-
-            if (anum != null && bnum != null)
-                return anum == bnum ? 0 : (anum < bnum ? -1 : 1);
-
-            if (anum == null && bnum == null)
-            {
-                var stringCompare = string.CompareOrdinal(astr, bstr);
-                return stringCompare > 0 ? 1 : stringCompare < 0 ? -1 : 0;
-            }
-
-            if (anum != null)
-                return -1;
-
-            return 1;
         }
 
         public Version Increment(IncrementType type)
@@ -234,25 +213,26 @@ namespace SemanticVersioning
                     goto case IncrementType.Patch;
                 case IncrementType.Patch:
                     _patch++;
-                    _prerelease = new object[0];
+                    _prerelease = new VersionIdentifier[0];
                     break;
                 case IncrementType.Prerelease:
                     if (_prerelease.Length == 0)
-                        _prerelease = new object[] {0};
+                        _prerelease = new VersionIdentifier[] { 0 };
                     else
                     {
                         var incrementedSomething = false;
                         for (var i = _prerelease.Length - 1; i >= 0; i--)
                         {
-                            if (_prerelease[i] is int)
+                            var integerValue = _prerelease[i].IntegerValue;
+                            if (integerValue != null)
                             {
-                                _prerelease[i] = (int) _prerelease[i] + 1;
+                                _prerelease[i] = integerValue + 1;
                                 incrementedSomething = true;
                                 break;
                             }
                         }
                         if (!incrementedSomething)
-                            _prerelease = new List<object>(_prerelease) {0}.ToArray();
+                            _prerelease = new List<VersionIdentifier>(_prerelease) {0}.ToArray();
                     }
                     break;
                 default:
@@ -305,7 +285,7 @@ namespace SemanticVersioning
         {
             _version = _major + "." + _minor + "." + _patch;
             if (_prerelease.Length > 0)
-                _version += "-" + string.Join(".", _prerelease);
+                _version += "-" + string.Join(".", _prerelease.Cast<object>());
         }
 
         #region SemVer Operator Overloads

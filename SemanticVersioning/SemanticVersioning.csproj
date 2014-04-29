@@ -47,6 +47,7 @@
     <Compile Include="ReSrc.cs" />
     <Compile Include="SemVer.cs" />
     <Compile Include="Version.cs" />
+    <Compile Include="VersionIdentifier.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

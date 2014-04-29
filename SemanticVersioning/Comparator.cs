@@ -39,7 +39,7 @@ namespace SemanticVersioning
                 // *don't* want, so we push the prerelease down to the minimum.
                 if (this.Operator == "<" && _semver.Prerelease.Length == 0)
                 {
-                    _semver.Prerelease = new object[] {0};
+                    _semver.Prerelease = new VersionIdentifier[] {0};
                 }
             }
 
