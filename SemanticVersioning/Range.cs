@@ -48,15 +48,15 @@ namespace SemanticVersioning
             return false;
         }
 
-        public bool Test(Version version)
+        public bool Matches(Version version)
         {
             if(ReferenceEquals(version, null))
                 throw new ArgumentNullException("version");
 
-            return _set.Any(comparators => TestSet(comparators, version));
+            return _set.Any(comparators => AllMatch(comparators, version));
         }
 
-        private static bool TestSet(IEnumerable<Comparator> comparators, Version version)
+        private static bool AllMatch(IEnumerable<Comparator> comparators, Version version)
         {
             return comparators.All(comp => comp.Matches(version));
         }

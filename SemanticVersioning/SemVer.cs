@@ -42,7 +42,7 @@ namespace SemanticVersioning
             {
                 return false;
             }
-            return range.Test(version);
+            return range.Matches(version);
         }
     }
 }
