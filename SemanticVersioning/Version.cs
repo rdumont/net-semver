@@ -143,18 +143,6 @@ namespace SemanticVersioning
             return new Version(major, minor, patch, prerelease, build, loose, source);
         }
 
-        public static string Valid(string version, bool loose = false)
-        {
-            var semver = Parse(version, loose);
-            return !ReferenceEquals(semver, null) ? semver._version : null;
-        }
-
-        public static string Clean(string version, bool loose = false)
-        {
-            var semver = Parse(version, loose);
-            return !ReferenceEquals(semver, null) ? semver._version : null;
-        }
-
         public int Compare(Version other)
         {
             var main = CompareMain(other);
