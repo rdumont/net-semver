@@ -96,7 +96,7 @@ namespace SemanticVersioning.Tests
             var version = Version.Parse(source);
 
             // Act
-            var satisfies = SemVer.Satisfies(version, range);
+            var satisfies = version.Satisfies(range);
 
             // Assert
             Assert.That(satisfies, Is.True);
@@ -111,7 +111,7 @@ namespace SemanticVersioning.Tests
             var version = Version.Parse(source, true);
 
             // Act
-            var satisfies = SemVer.Satisfies(version, range, true);
+            var satisfies = version.Satisfies(range);
 
             // Assert
             Assert.That(satisfies, Is.True);
@@ -173,7 +173,7 @@ namespace SemanticVersioning.Tests
             var version = Version.Parse(source);
 
             // Act
-            var satisfies = SemVer.Satisfies(version, range);
+            var satisfies = version.Satisfies(range);
 
             // Assert
             Assert.That(satisfies, Is.False);
@@ -190,7 +190,7 @@ namespace SemanticVersioning.Tests
             var version = Version.Parse(source, true);
 
             // Act
-            var satisfies = SemVer.Satisfies(version, range, true);
+            var satisfies = version.Satisfies(range);
 
             // Assert
             Assert.That(satisfies, Is.False);

@@ -45,7 +45,6 @@
     <Compile Include="Range.cs" />
     <Compile Include="Re.cs" />
     <Compile Include="ReSrc.cs" />
-    <Compile Include="SemVer.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="VersionIdentifier.cs" />
   </ItemGroup>

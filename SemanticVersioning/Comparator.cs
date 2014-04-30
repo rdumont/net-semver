@@ -60,7 +60,7 @@ namespace SemanticVersioning
                 // <1.2.3-rc DOES allow 1.2.3-beta (has prerelease)
                 // >=1.2.3 DOES NOT allow 1.2.3-beta
                 // <=1.2.3 DOES allow 1.2.3-beta
-                // However, <1.2.3 does NOT allow 1.2.3-beta,
+                // However, <1.2.3 does NOT allow 1.2.3-bet_semver,
                 // even though `1.2.3-beta < 1.2.3`
                 // The assumption is that the 1.2.3 version has something you
                 // *don't* want, so we push the prerelease down to the minimum.
@@ -75,7 +75,34 @@ namespace SemanticVersioning
 
         public bool Matches(Version version)
         {
-            return ReferenceEquals(_semver, Any) || SemVer.Compare(version, Operator, _semver);
+            return ReferenceEquals(_semver, Any) || CompareTo(version);
+        }
+
+        private bool CompareTo(Version other)
+        {
+            switch (this.Operator)
+            {
+                case "===":
+                    return ReferenceEquals(other, _semver);
+                case "!==":
+                    return !ReferenceEquals(other, _semver);
+                case "!=":
+                    return other != _semver;
+                case ">":
+                    return other > _semver;
+                case ">=":
+                    return other >= _semver;
+                case "<":
+                    return other < _semver;
+                case "<=":
+                    return other <= _semver;
+                case "":
+                case "=":
+                case "==":
+                    return other == _semver;
+                default:
+                    throw new FormatException("Invalid operator: " + this.Operator);
+            }
         }
         
         public override string ToString()

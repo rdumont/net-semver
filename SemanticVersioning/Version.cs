@@ -143,6 +143,19 @@ namespace SemanticVersioning
             return new Version(major, minor, patch, prerelease, build, loose, source);
         }
 
+        public bool Satisfies(string range)
+        {
+            try
+            {
+                Range actualRange;
+                return Range.TryParse(range, out actualRange, _loose) && actualRange.Matches(this);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+        }
+
         public int CompareTo(Version other)
         {
             var main = CompareMain(other);
