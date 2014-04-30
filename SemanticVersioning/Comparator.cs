@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace SemanticVersioning
 {
@@ -9,26 +10,52 @@ namespace SemanticVersioning
 
         public string Operator { get; private set; }
 
-        public bool Loose { get; private set; }
-        
-        public string Value { get; private set; }
+        public string Version { get; private set; }
 
-        public Comparator(string comp, bool loose = false)
+        public Comparator(string op, Version version)
         {
-            Loose = loose;
+            this.Operator = op;
+            this.Version = ReferenceEquals(version, Any) ? string.Empty : version.ToString();
+            _semver = version;
+        }
+
+        public static Comparator Parse(string source, bool loose = false)
+        {
+            Comparator comparator;
+            if (TryParse(source, out comparator, loose))
+                return comparator;
+
+            throw new FormatException("Invalid comparator: " + source);
+        }
+
+        public static bool TryParse(string source, out Comparator comparator, bool loose = false)
+        {
             var regex = loose ? Re.ComparatorLoose : Re.Comparator;
-            var match = regex.Match(comp);
+            var match = regex.Match(source);
 
             if (!match.Success)
-                throw new FormatException("Invalid comparator: " + comp);
+            {
+                comparator = null;
+                return false;
+            }
+            comparator = Parse(match, source, loose);
+            return true;
+        }
 
-            Operator = match.Groups[1].Value;
+        internal static Comparator Parse(Match match, string source, bool loose = false)
+        {
+            if(!match.Success)
+                throw new FormatException("Invalid comparator: " + source);
+
+            var op = match.Groups[1].Value;
+            Version version;
+
             // if it literally is just '>' or '' then allow anything
             if (!match.Groups[2].Success)
-                _semver = Any;
+                version = Any;
             else
             {
-                _semver = Version.Parse(match.Groups[2].Value, this.Loose);
+                version = SemanticVersioning.Version.Parse(match.Groups[2].Value, loose);
 
                 // <1.2.3-rc DOES allow 1.2.3-beta (has prerelease)
                 // >=1.2.3 DOES NOT allow 1.2.3-beta
@@ -37,16 +64,13 @@ namespace SemanticVersioning
                 // even though `1.2.3-beta < 1.2.3`
                 // The assumption is that the 1.2.3 version has something you
                 // *don't* want, so we push the prerelease down to the minimum.
-                if (this.Operator == "<" && _semver.Prerelease.Length == 0)
+                if (op == "<" && version.Prerelease.Length == 0)
                 {
-                    _semver.Prerelease = new VersionIdentifier[] {0};
+                    version.Prerelease = new VersionIdentifier[] {0};
                 }
             }
 
-            if (ReferenceEquals(_semver, Any))
-                Value = "";
-            else
-                Value = Operator + _semver;
+            return new Comparator(op, version);
         }
 
         public bool Matches(Version version)
@@ -56,7 +80,7 @@ namespace SemanticVersioning
         
         public override string ToString()
         {
-            return Value;
+            return Version;
         }
     }
 }

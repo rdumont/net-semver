@@ -8,35 +8,44 @@ namespace SemanticVersioning
 {
     public class Range
     {
-        private readonly string _raw;
         private readonly bool _loose;
         private readonly Comparator[][] _set;
-        private string _range;
+        private readonly string _source;
 
-        public Range(string range, bool loose = false)
+        public Range(Comparator[][] comparatorSets,  bool loose, string source)
         {
+            _set = comparatorSets;
             _loose = loose;
-            _raw = range;
-            _set = Regex.Split(range, @"\s*\|\|\s*")
-                .Select(ParseRange)
+            _source = source;
+            _loose = loose;
+
+            _source = string.Join("||", _set.Select(comps => string.Join(" ", comps.Select(c => c.ToString()))));
+        }
+
+        public static Range Parse(string source, bool loose = false)
+        {
+            Range range;
+            if (TryParse(source, out range, loose))
+                return range;
+
+            throw new FormatException("Invalid SemVer Range: " + source);
+        }
+
+        public static bool TryParse(string source, out Range range, bool loose = false)
+        {
+            var sets = Regex.Split(source, @"\s*\|\|\s*")
+                .Select(comparatorSet => ParseSet(comparatorSet, loose))
                 .Where(comparators => comparators.Length > 0)
                 .ToArray();
 
-            if (_set.Length == 0)
-                throw new FormatException("Invalid SemVer Range: " + range);
+            if (sets.Any())
+            {
+                range = new Range(sets, loose, source);
+                return true;
+            }
 
-            this.Format();
-        }
-
-        public string Format()
-        {
-            _range = string.Join("||", _set.Select(comps => string.Join(" ", comps.Select(c => c.ToString()))));
-            return _range;
-        }
-
-        public override string ToString()
-        {
-            return _range;
+            range = null;
+            return false;
         }
 
         public bool Test(Version version)
@@ -52,12 +61,17 @@ namespace SemanticVersioning
             return comparators.All(comp => comp.Matches(version));
         }
 
-        private Comparator[] ParseRange(string range)
+        public override string ToString()
+        {
+            return _source;
+        }
+
+        private static Comparator[] ParseSet(string range, bool loose)
         {
             range = range.Trim();
 
             // `1.2.3 - 1.2.4` => `>=1.2.3 <= 1.2.4`
-            var hyphenRangeRegex = _loose ? Re.HyphenRangeLoose : Re.HyphenRange; // get hyphen replace Regex
+            var hyphenRangeRegex = loose ? Re.HyphenRangeLoose : Re.HyphenRange; // get hyphen replace Regex
             range = hyphenRangeRegex.Replace(range, HyphenReplace);
 
             // `< 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
@@ -75,19 +89,19 @@ namespace SemanticVersioning
             // At this point, the range is completely trimmed and
             // ready to be split into comparators.
 
-            var compRegex = _loose ? Re.ComparatorLoose : Re.Comparator;
-            var set = Regex.Split(string.Join(" ", range.Split(' ').Select(comp => ParseComparator(comp, _loose))),
-                "\\s+");
-            if (_loose)
+            var compRegex = loose ? Re.ComparatorLoose : Re.Comparator;
+            var comps = Regex.Split(string.Join(" ", range.Split(' ').Select(comp => TrimComparator(comp, loose))),
+                "\\s+").Select(comp => new { Source = comp, Match = compRegex.Match(comp) });
+            if (loose)
             {
                 // in loose mode, throw out any that are not valid comparators
-                set = set.Where(comp => compRegex.IsMatch(comp)).ToArray();
+                comps = comps.Where(comp => comp.Match.Success).ToArray();
             }
 
-            return set.Select(comp => new Comparator(comp, _loose)).ToArray();
+            return comps.Select(comp => Comparator.Parse(comp.Match, comp.Source, loose)).ToArray();
         }
 
-        private string ParseComparator(string comp, bool loose = false)
+        private static string TrimComparator(string comp, bool loose)
         {
             comp = ReplaceCarets(comp, loose);
             comp = ReplaceTildes(comp, loose);
@@ -102,12 +116,12 @@ namespace SemanticVersioning
         // ^1.2, ^1.2.x --> >=1.2.0 <2.0.0
         // ^1.2.3 --> >=1.2.3 <2.0.0
         // ^1.2.0 --> >=1.2.0 <2.0.0
-        private string ReplaceCarets(string comp, bool loose)
+        private static string ReplaceCarets(string comp, bool loose)
         {
             return string.Join(" ", Regex.Split(comp, "\\s+").Select(c => ReplaceCaret(c, loose)));
         }
 
-        private string ReplaceCaret(string comp, bool loose)
+        private static string ReplaceCaret(string comp, bool loose)
         {
             var regex = loose ? Re.CaretLoose : Re.Caret;
             return regex.Replace(comp, match =>
@@ -174,12 +188,12 @@ namespace SemanticVersioning
         // ~1.2, ~1.2.x, ~>1.2, ~>1.2.x --> >=1.2.0 <1.3.0
         // ~1.2.3, ~>1.2.3 --> >=1.2.3 <1.3.0
         // ~1.2.0, ~>1.2.0 --> >=1.2.0 <1.3.0
-        private string ReplaceTildes(string comp, bool loose)
+        private static string ReplaceTildes(string comp, bool loose)
         {
             return string.Join(" ", Regex.Split(comp, "\\s+").Select(c => ReplaceTilde(c, loose)));
         }
 
-        private string ReplaceTilde(string comp, bool loose)
+        private static string ReplaceTilde(string comp, bool loose)
         {
             var regex = loose ? Re.TildeLoose : Re.Tilde;
             return regex.Replace(comp, match =>
@@ -215,12 +229,12 @@ namespace SemanticVersioning
             });
         }
 
-        private string ReplaceXRanges(string comp, bool loose)
+        private static string ReplaceXRanges(string comp, bool loose)
         {
             return string.Join(" ", Regex.Split(comp, "\\s+").Select(c => ReplaceXRange(c, loose)));
         }
 
-        private string ReplaceXRange(string comp, bool loose)
+        private static string ReplaceXRange(string comp, bool loose)
         {
             var regex = loose ? Re.XRangeLoose : Re.XRange;
             return regex.Replace(comp, match =>
@@ -296,12 +310,12 @@ namespace SemanticVersioning
 
         // Because * is AND-ed with everything else in the comparator,
         // and '' means "any version", just remove the *s entirely.
-        private string ReplaceStars(string comp, bool loose)
+        private static string ReplaceStars(string comp, bool loose)
         {
             return Re.Star.Replace(comp.Trim(), "");
         }
 
-        private string HyphenReplace(Match match)
+        private static string HyphenReplace(Match match)
         {
             var values = match.Groups.Cast<Group>().Select(group => group.Value).ToArray();
             return HyphenReplace(values[0],
@@ -309,7 +323,7 @@ namespace SemanticVersioning
                 values[7], values[8], values[9], values[10], values[11], values[12]);
         }
 
-        private string HyphenReplace(string match,
+        private static string HyphenReplace(string match,
             string from, string fromMajor, string fromMinor, string fromPatch, string fromPrerelease, string fromBuild,
             string to, string toMajor, string toMinor, string toPatch, string toPrerelease, string toBuild)
         {

@@ -36,7 +36,7 @@ namespace SemanticVersioning
             Range range;
             try
             {
-                range = new Range(rangeString, loose);
+                range = Range.Parse(rangeString, loose);
             }
             catch (FormatException)
             {

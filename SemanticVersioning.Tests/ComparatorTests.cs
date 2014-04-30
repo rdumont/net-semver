@@ -15,7 +15,7 @@ namespace SemanticVersioning.Tests
         public void Should_test_ok(string comp, string version)
         {
             // Arrange
-            var comparator = new Comparator(comp);
+            var comparator = Comparator.Parse(comp);
 
             // Act
             var result = comparator.Matches(Version.Parse(version));
@@ -34,7 +34,7 @@ namespace SemanticVersioning.Tests
         public void Should_fail_test(string comp, string version)
         {
             // Arrange
-            var comparator = new Comparator(comp);
+            var comparator = Comparator.Parse(comp);
 
             // Act
             var result = comparator.Matches(Version.Parse(version));
