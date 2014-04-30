@@ -6,6 +6,7 @@ NUGET_SOURCE="https://www.myget.org/F/vtexlab/"
 NUNIT_PATH="packages/NUnit.Runners.2.6.3/tools/nunit-console.exe"
 
 SOLUTION_FILE="SemanticVersioning.sln"
+NUGET_PROJECTS=("SemanticVersioning/SemanticVersioning.csproj")
 TEST_ASSEMBLIES=("SemanticVersioning.Tests/SemanticVersioning.Tests.csproj")
 
 # Default
@@ -36,6 +37,24 @@ elif [ "$1" == "restore" ]; then
   echo
   echo " --- make: NuGet Restore"
   $NUGET_PATH restore "$SOLUTION_FILE"
+ 
+# Pack NuGet Packages
+elif [ "$1" == "pack" ]; then
+  echo " --- make: Build NuGet package"
+  if test ! -e "nuget"; then mkdir "nuget"; fi
+  rm nuget/*
+  for ((i = 0; i < ${#NUGET_PROJECTS[@]}; i++)); do
+    $NUGET_PATH pack "${NUGET_PROJECTS[$i]}" -o nuget -Build -p Configuration=Release -Symbols
+    echo
+  done
+  
+# Push NuGet Packages
+elif [ "$1" == "push" ]; then
+  echo " --- make: Push NuGet package"
+  for f in `ls nuget`; do
+    $NUGET_PATH push "nuget/$f"
+    echo
+  done
 
 # Command not found
 else

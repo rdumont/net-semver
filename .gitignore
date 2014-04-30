@@ -7,6 +7,7 @@
 *.sln.docstates
 
 # Build results
+[Nn]uget/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
