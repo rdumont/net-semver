@@ -199,7 +199,7 @@ namespace SemanticVersioning
             return 0;
         }
 
-        public Version Increment(IncrementType type)
+        public void Increment(IncrementType type)
         {
             switch (type)
             {
@@ -239,7 +239,6 @@ namespace SemanticVersioning
                     throw new ArgumentException("Invalid increment: " + type, "type");
             }
             this.Format();
-            return this;
         }
 
         public object Clone()

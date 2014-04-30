@@ -409,19 +409,6 @@ namespace SemanticVersioning.Tests
 
         class Increment
         {
-            [Test]
-            public void Should_return_itself()
-            {
-                // Arrange
-                var version = Version.Parse("1.2.3");
-
-                // Act
-                var result = version.Increment(IncrementType.Patch);
-
-                // Assert
-                Assert.That(result, Is.SameAs(version));
-            }
-
             [TestCase("1.2.3", "1.2.3-0")]
             [TestCase("1.2.3-beta", "1.2.3-beta.0")]
             [TestCase("1.2.3-beta.0", "1.2.3-beta.1")]
