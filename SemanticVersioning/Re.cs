@@ -2,7 +2,7 @@
 
 namespace SemanticVersioning
 {
-    public static class Re
+    internal static class Re
     {
         public static Regex Full = new Regex(ReSrc.Full, RegexOptions.Compiled);
         public static Regex Loose = new Regex(ReSrc.Loose, RegexOptions.Compiled);
