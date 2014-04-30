@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace SemanticVersioning
 {
-    public class Version : ICloneable, IEquatable<Version>
+    public class Version : ICloneable, IEquatable<Version>, IComparable<Version>
     {
         private int _major;
         private int _minor;
@@ -143,7 +143,7 @@ namespace SemanticVersioning
             return new Version(major, minor, patch, prerelease, build, loose, source);
         }
 
-        public int Compare(Version other)
+        public int CompareTo(Version other)
         {
             var main = CompareMain(other);
             return main != 0 ? main : ComparePre(other);
@@ -238,7 +238,7 @@ namespace SemanticVersioning
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return this.Compare(other) == 0;
+            return this.CompareTo(other) == 0;
         }
 
         public override bool Equals(object obj)
@@ -281,7 +281,7 @@ namespace SemanticVersioning
         {
             if (ReferenceEquals(v1, null))
                 return ReferenceEquals(v2, null);
-            return v1.Compare(v2) == 0;
+            return v1.CompareTo(v2) == 0;
         }
 
         public static bool operator !=(Version v1, Version v2)
@@ -295,7 +295,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
             if (ReferenceEquals(v2, null))
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
-            return v1.Compare(v2) < 0;
+            return v1.CompareTo(v2) < 0;
         }
 
         public static bool operator >(Version v1, Version v2)
@@ -304,7 +304,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
             if (ReferenceEquals(v2, null))
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
-            return v1.Compare(v2) > 0;
+            return v1.CompareTo(v2) > 0;
         }
 
         public static bool operator <=(Version v1, Version v2)
@@ -325,7 +325,7 @@ namespace SemanticVersioning
         {
             if (ReferenceEquals(v1, null))
                 return false;
-            return v1.Compare(Parse(v2, v1._loose)) == 0;
+            return v1.CompareTo(Parse(v2, v1._loose)) == 0;
         }
 
         public static bool operator !=(Version v1, string v2)
@@ -339,7 +339,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
             if (string.IsNullOrWhiteSpace(v2))
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
-            return v1.Compare(Parse(v2, v1._loose)) < 0;
+            return v1.CompareTo(Parse(v2, v1._loose)) < 0;
         }
 
         public static bool operator >(Version v1, string v2)
@@ -348,7 +348,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
             if (string.IsNullOrWhiteSpace(v2))
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
-            return v1.Compare(Parse(v2, v1._loose)) > 0;
+            return v1.CompareTo(Parse(v2, v1._loose)) > 0;
         }
 
         public static bool operator <=(Version v1, string v2)
@@ -369,7 +369,7 @@ namespace SemanticVersioning
         {
             if (ReferenceEquals(v2, null))
                 return false;
-            return v2.Compare(Parse(v1, v2._loose)) == 0;
+            return v2.CompareTo(Parse(v1, v2._loose)) == 0;
         }
 
         public static bool operator !=(string v1, Version v2)
@@ -383,7 +383,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
             if (ReferenceEquals(v2, null))
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
-            return v2.Compare(Parse(v1, v2._loose)) > 0;
+            return v2.CompareTo(Parse(v1, v2._loose)) > 0;
         }
 
         public static bool operator >(string v1, Version v2)
@@ -392,7 +392,7 @@ namespace SemanticVersioning
                 throw new ArgumentNullException("v2", "Cannot compare null versions");
             if (ReferenceEquals(v2, null))
                 throw new ArgumentNullException("v1", "Cannot compare null versions");
-            return v2.Compare(Parse(v1, v2._loose)) < 0;
+            return v2.CompareTo(Parse(v1, v2._loose)) < 0;
         }
 
         public static bool operator <=(string v1, Version v2)
