@@ -5,6 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace SemanticVersioning
 {
+    /// <summary>
+    /// Represents a semantic version
+    /// </summary>
     public class Version : ICloneable, IEquatable<Version>, IComparable<Version>
     {
         private int _major;
@@ -17,6 +20,9 @@ namespace SemanticVersioning
         private readonly string _raw;
         private string _version;
 
+        /// <summary>
+        /// This version's major component
+        /// </summary>
         public int Major
         {
             get { return _major; }
@@ -27,6 +33,9 @@ namespace SemanticVersioning
             }
         }
 
+        /// <summary>
+        /// This version's minor component
+        /// </summary>
         public int Minor
         {
             get { return _minor; }
@@ -37,6 +46,9 @@ namespace SemanticVersioning
             }
         }
 
+        /// <summary>
+        /// This version's patch component
+        /// </summary>
         public int Patch
         {
             get { return _patch; }
@@ -47,6 +59,9 @@ namespace SemanticVersioning
             }
         }
 
+        /// <summary>
+        /// Pre-release identifiers split by dots ('.')
+        /// </summary>
         public VersionIdentifier[] Prerelease
         {
             get { return _prerelease; }
@@ -57,6 +72,9 @@ namespace SemanticVersioning
             }
         }
 
+        /// <summary>
+        /// Build identifiers split by dots ('.')
+        /// </summary>
         public string[] Build
         {
             get { return _build; }
@@ -67,16 +85,38 @@ namespace SemanticVersioning
             }
         }
 
+        /// <summary>
+        /// Creates a new version without pre-release and build values
+        /// </summary>
+        /// <param name="major">The major component</param>
+        /// <param name="minor">The minor component</param>
+        /// <param name="patch">The patch component</param>
         public Version(int major, int minor, int patch)
             : this(major, minor, patch, null, null)
         {
         }
 
+        /// <summary>
+        /// Creates a new version with pre-release, but not build value
+        /// </summary>
+        /// <param name="major">The major component</param>
+        /// <param name="minor">The minor component</param>
+        /// <param name="patch">The patch component</param>
+        /// <param name="prerelease">The prerelease component</param>
         public Version(int major, int minor, int patch, VersionIdentifier[] prerelease)
             : this(major, minor, patch, prerelease, null)
         {
         }
 
+
+        /// <summary>
+        /// Creates a new version with pre-release and build values
+        /// </summary>
+        /// <param name="major">The major component</param>
+        /// <param name="minor">The minor component</param>
+        /// <param name="patch">The patch component</param>
+        /// <param name="prerelease">The prerelease component</param>
+        /// <param name="build">The build component</param>
         public Version(int major, int minor, int patch, VersionIdentifier[] prerelease, string[] build)
             : this(major, minor, patch, prerelease, build, false, string.Empty)
         {
@@ -95,11 +135,22 @@ namespace SemanticVersioning
             Format();
         }
 
+        /// <summary>
+        /// Creates an empty version
+        /// </summary>
         protected Version()
             : this(0, 0, 0, null, null)
         {
         }
 
+
+        /// <summary>
+        /// Converts the string representation of a version into a semantic version object.
+        /// </summary>
+        /// <param name="source">The version to be parsed</param>
+        /// <param name="loose">Whether the version should be parsed using loose or strict mode</param>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is null</exception>
+        /// <exception cref="T:System.FormatException"><paramref name="source"/> is not a valid version</exception>
         public static Version Parse(string source, bool loose = false)
         {
             Version version;
@@ -109,6 +160,16 @@ namespace SemanticVersioning
             throw new FormatException("Invalid Version: " + source);
         }
 
+        /// <summary>
+        /// Converts the string representation of a version into a semantic version object.
+        /// A return value indicates whether the conversion succeeded.
+        /// </summary>
+        /// <param name="source">The version to be parsed</param>
+        /// <param name="version">
+        /// When the method returns, contains the parsed semantic version object if the conversion was successful,
+        /// or <c>null</c> otherwise.</param>
+        /// <param name="loose">Whether the version should be parsed using loose or strict mode</param>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is null</exception>
         public static bool TryParse(string source, out Version version, bool loose = false)
         {
             if (source == null)
@@ -143,6 +204,10 @@ namespace SemanticVersioning
             return new Version(major, minor, patch, prerelease, build, loose, source);
         }
 
+        /// <summary>
+        /// Verifies whether this version is valid for the provided string representation of a range.
+        /// </summary>
+        /// <param name="range">String representation of the range</param>
         public bool Satisfies(string range)
         {
             try
@@ -156,6 +221,15 @@ namespace SemanticVersioning
             }
         }
 
+        /// <summary>
+        /// Compares this version to another one and indicates whether it preceeds, succeeds or is the same as the
+        /// specified <see cref="T:SemanticVersioning.Version"/>.
+        /// </summary>
+        /// <param name="other">The version to compare with this instance</param>
+        /// <returns>
+        /// Less than zero if this instance precedes the <paramref name="other"/> parameter. More than zero if this
+        /// instance succeeds the <paramref name="other"/> parameter. Zero if they are the same semantic version.
+        /// </returns>
         public int CompareTo(Version other)
         {
             var main = CompareMain(other);
@@ -201,9 +275,14 @@ namespace SemanticVersioning
         }
 
         /// <summary>
-        /// Increments this version's value by one in the given segment.
+        /// Increments this version's value by one in the given segment. When a given segment is incremented, all of the
+        /// subsequent segments are reset to their default values, which are <c>0</c> for
+        /// <see cref="F:SemanticVersioning.VersionSegment.Major"/>,
+        /// <see cref="F:SemanticVersioning.VersionSegment.Minor"/> and
+        /// <see cref="F:SemanticVersioning.VersionSegment.Patch"/>, and none for
+        /// <see cref="F:SemanticVersioning.VersionSegment.Prerelease"/>.
         /// </summary>
-        /// <param name="segment"></param>
+        /// <param name="segment">The segment that should be incremented</param>
         public void Increment(VersionSegment segment)
         {
             switch (segment)
@@ -294,6 +373,9 @@ namespace SemanticVersioning
 
         #region SemVer Operator Overloads
 
+        /// <summary>
+        /// Returns whether two versions are equal.
+        /// </summary>
         public static bool operator ==(Version v1, Version v2)
         {
             if (ReferenceEquals(v1, null))
@@ -301,11 +383,17 @@ namespace SemanticVersioning
             return v1.CompareTo(v2) == 0;
         }
 
+        /// <summary>
+        /// Returns whether two versions are NOT equal.
+        /// </summary>
         public static bool operator !=(Version v1, Version v2)
         {
             return !(v1 == v2);
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version preceeds <paramref name="v2"/>.
+        /// </summary>
         public static bool operator <(Version v1, Version v2)
         {
             if (ReferenceEquals(v1, null))
@@ -315,6 +403,9 @@ namespace SemanticVersioning
             return v1.CompareTo(v2) < 0;
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version succeeds <paramref name="v2"/>.
+        /// </summary>
         public static bool operator >(Version v1, Version v2)
         {
             if (ReferenceEquals(v1, null))
@@ -324,11 +415,17 @@ namespace SemanticVersioning
             return v1.CompareTo(v2) > 0;
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version preceeds or is equal to <paramref name="v2"/>.
+        /// </summary>
         public static bool operator <=(Version v1, Version v2)
         {
             return !(v1 > v2);
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version succeeds or is equal to <paramref name="v2"/>.
+        /// </summary>
         public static bool operator >=(Version v1, Version v2)
         {
             return !(v1 < v2);
@@ -338,6 +435,12 @@ namespace SemanticVersioning
 
         #region SemVer to String Operator Overloads
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version is equal to <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">First version</param>
+        /// <param name="v2">String representation of the second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v2"/> is not a valid version</exception>
         public static bool operator ==(Version v1, string v2)
         {
             if (ReferenceEquals(v1, null))
@@ -345,11 +448,23 @@ namespace SemanticVersioning
             return v1.CompareTo(Parse(v2, v1._loose)) == 0;
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version is NOT equal to <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">First version</param>
+        /// <param name="v2">String representation of the second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v2"/> is not a valid version</exception>
         public static bool operator !=(Version v1, string v2)
         {
             return !(v1 == v2);
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version preceeds <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">First version</param>
+        /// <param name="v2">String representation of the second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v2"/> is not a valid version</exception>
         public static bool operator <(Version v1, string v2)
         {
             if (ReferenceEquals(v1, null))
@@ -359,6 +474,12 @@ namespace SemanticVersioning
             return v1.CompareTo(Parse(v2, v1._loose)) < 0;
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version succeeds <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">First version</param>
+        /// <param name="v2">String representation of the second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v2"/> is not a valid version</exception>
         public static bool operator >(Version v1, string v2)
         {
             if (ReferenceEquals(v1, null))
@@ -368,11 +489,23 @@ namespace SemanticVersioning
             return v1.CompareTo(Parse(v2, v1._loose)) > 0;
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version preceeds or is equal to <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">First version</param>
+        /// <param name="v2">String representation of the second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v2"/> is not a valid version</exception>
         public static bool operator <=(Version v1, string v2)
         {
             return !(v1 > v2);
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version succeeds or is equal to <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">First version</param>
+        /// <param name="v2">String representation of the second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v2"/> is not a valid version</exception>
         public static bool operator >=(Version v1, string v2)
         {
             return !(v1 < v2);
@@ -382,6 +515,12 @@ namespace SemanticVersioning
 
         #region String to SemVer Operator Overloads
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version is equal to <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">String representation of the first version</param>
+        /// <param name="v2">Second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v1"/> is not a valid version</exception>
         public static bool operator ==(string v1, Version v2)
         {
             if (ReferenceEquals(v2, null))
@@ -389,11 +528,23 @@ namespace SemanticVersioning
             return v2.CompareTo(Parse(v1, v2._loose)) == 0;
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version is NOT equal to <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">String representation of the first version</param>
+        /// <param name="v2">Second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v1"/> is not a valid version</exception>
         public static bool operator !=(string v1, Version v2)
         {
             return !(v1 == v2);
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version preceeds <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">String representation of the first version</param>
+        /// <param name="v2">Second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v1"/> is not a valid version</exception>
         public static bool operator <(string v1, Version v2)
         {
             if (string.IsNullOrWhiteSpace(v1))
@@ -403,6 +554,12 @@ namespace SemanticVersioning
             return v2.CompareTo(Parse(v1, v2._loose)) > 0;
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version succeeds <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">String representation of the first version</param>
+        /// <param name="v2">Second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v1"/> is not a valid version</exception>
         public static bool operator >(string v1, Version v2)
         {
             if (string.IsNullOrWhiteSpace(v1))
@@ -412,11 +569,23 @@ namespace SemanticVersioning
             return v2.CompareTo(Parse(v1, v2._loose)) < 0;
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version preceeds or is equal to <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">String representation of the first version</param>
+        /// <param name="v2">Second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v1"/> is not a valid version</exception>
         public static bool operator <=(string v1, Version v2)
         {
             return !(v1 > v2);
         }
 
+        /// <summary>
+        /// Returns whether the <paramref name="v1"/> version succeeds or is equal to <paramref name="v2"/>.
+        /// </summary>
+        /// <param name="v1">String representation of the first version</param>
+        /// <param name="v2">Second version</param>
+        /// <exception cref="T:System.FormatException"><paramref name="v1"/> is not a valid version</exception>
         public static bool operator >=(string v1, Version v2)
         {
             return !(v1 < v2);

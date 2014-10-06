@@ -3,22 +3,39 @@ using System.Text.RegularExpressions;
 
 namespace SemanticVersioning
 {
+    /// <summary>
+    /// Can compare versions based on an operator.
+    /// </summary>
     public class Comparator
     {
         private static readonly Version Any = new Version(0, 0, 0);
         private readonly Version _semver;
 
+        /// <summary>
+        /// The operator to be used for the comparison.
+        /// </summary>
         public string Operator { get; private set; }
 
+        /// <summary>
+        /// The version on which to base the comparison.
+        /// </summary>
         public string Version { get; private set; }
 
-        public Comparator(string op, Version version)
+        private Comparator(string op, Version version)
         {
             this.Operator = op;
             this.Version = ReferenceEquals(version, Any) ? string.Empty : version.ToString();
             _semver = version;
         }
 
+        /// <summary>
+        /// Converts the specified string representation of a comparator to its
+        /// <see cref="T:SemanticVersioning.Comparator"/> equivalent.
+        /// </summary>
+        /// <param name="source">The string representation of the comparator</param>
+        /// <param name="loose">Whether to use loose mode or not</param>
+        /// <returns>The parsed <see cref="SemanticVersioning.Comparator"/></returns>
+        /// <exception cref="T:System.FormatException"><paramref name="source"/> is not a valid comparator</exception>
         public static Comparator Parse(string source, bool loose = false)
         {
             Comparator comparator;
@@ -28,6 +45,17 @@ namespace SemanticVersioning
             throw new FormatException("Invalid comparator: " + source);
         }
 
+        /// <summary>
+        /// Tries to convert the specified string representation of a comparator to its
+        /// <see cref="T:SemanticVersioning.Comparator"/> equivalent. A return value indicates whether the conversion
+        /// succeeded or failed.
+        /// </summary>
+        /// <param name="source">The string representation of the range</param>
+        /// <param name="comparator">
+        /// When this method returns, contains a <see cref="T:SemanticVersioning.Comparator"/> if the conversion succeeded.
+        /// </param>
+        /// <param name="loose">Whether to use loose mode or not</param>
+        /// <returns>true if <paramref name="source"/> was converted successfully; otherwise, false.</returns>
         public static bool TryParse(string source, out Comparator comparator, bool loose = false)
         {
             var regex = loose ? Re.ComparatorLoose : Re.Comparator;
@@ -73,6 +101,11 @@ namespace SemanticVersioning
             return new Comparator(op, version);
         }
 
+        /// <summary>
+        /// Returns whether the given version satisfies this comparator.
+        /// </summary>
+        /// <param name="version">The <see cref="T:SemanticVersioning.Version"/> to be matched</param>
+        /// <returns>true if the <paramref name="version"/> matches this comparator; false otherwise.</returns>
         public bool Matches(Version version)
         {
             return ReferenceEquals(_semver, Any) || CompareTo(version);

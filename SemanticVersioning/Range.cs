@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace SemanticVersioning
 {
+    /// <summary>
+    /// A range of semantic versions.
+    /// </summary>
     public class Range
     {
         private readonly bool _loose;
         private readonly Comparator[][] _set;
         private readonly string _source;
-
-        public Range(Comparator[][] comparatorSets,  bool loose, string source)
+        
+        private Range(Comparator[][] comparatorSets,  bool loose, string source)
         {
             _set = comparatorSets;
             _loose = loose;
@@ -22,6 +24,14 @@ namespace SemanticVersioning
             _source = string.Join("||", _set.Select(comps => string.Join(" ", comps.Select(c => c.ToString()))));
         }
 
+        /// <summary>
+        /// Converts the specified string representation of a version range to its
+        /// <see cref="T:SemanticVersioning.Range"/> equivalent.
+        /// </summary>
+        /// <param name="source">The string representation of the range</param>
+        /// <param name="loose">Whether to use loose mode or not</param>
+        /// <returns>The parsed <see cref="T:SemanticVersioning.Range"/></returns>
+        /// <exception cref="T:System.FormatException"><paramref name="source"/> is not a valid SemVer Range</exception>
         public static Range Parse(string source, bool loose = false)
         {
             Range range;
@@ -31,6 +41,17 @@ namespace SemanticVersioning
             throw new FormatException("Invalid SemVer Range: " + source);
         }
 
+        /// <summary>
+        /// Tries to convert the specified string representation of a version range to its
+        /// <see cref="T:SemanticVersioning.Range"/> equivalent. A return value indicates whether the conversion
+        /// succeeded or failed.
+        /// </summary>
+        /// <param name="source">The string representation of the range</param>
+        /// <param name="range">
+        /// When this method returns, contains a <see cref="T:SemanticVersioning.Range"/> if the conversion succeeded.
+        /// </param>
+        /// <param name="loose">Whether to use loose mode or not</param>
+        /// <returns>true if <paramref name="source"/> was converted successfully; otherwise, false.</returns>
         public static bool TryParse(string source, out Range range, bool loose = false)
         {
             var sets = Regex.Split(source, @"\s*\|\|\s*")
@@ -48,6 +69,11 @@ namespace SemanticVersioning
             return false;
         }
 
+        /// <summary>
+        /// Returns whether the given version satisfies thing range.
+        /// </summary>
+        /// <param name="version">The <see cref="T:SemanticVersioning.Version"/> to be matched</param>
+        /// <returns>true if the <paramref name="version"/> matches this range; false otherwise.</returns>
         public bool Matches(Version version)
         {
             if(ReferenceEquals(version, null))

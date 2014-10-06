@@ -2,31 +2,54 @@
 
 namespace SemanticVersioning
 {
+    /// <summary>
+    /// Value of a version's segment.
+    /// </summary>
     public class VersionIdentifier : IEquatable<VersionIdentifier>, IComparable<VersionIdentifier>
     {
         private readonly string _stringValue;
         private readonly int? _integerValue;
 
+        /// <summary>
+        /// The segment's value when it is an integer.
+        /// </summary>
         public int? IntegerValue
         {
             get { return _integerValue; }
         }
 
+        /// <summary>
+        /// The segment's value when it is a string.
+        /// </summary>
         public string StringValue
         {
             get { return _stringValue; }
         }
 
+        /// <summary>
+        /// Creates an instance of a Version Identifier for an integer value.
+        /// </summary>
+        /// <param name="integerValue">The identifier value</param>
         public VersionIdentifier(int integerValue)
         {
             _integerValue = integerValue;
         }
 
+        /// <summary>
+        /// Creates an instance of a Version Identifier for a string value.
+        /// </summary>
+        /// <param name="stringValue">The identifier value</param>
         public VersionIdentifier(string stringValue)
         {
             _stringValue = stringValue;
         }
 
+        /// <summary>
+        /// Parses a version identifier from its string representation. If it can be parsed as an
+        /// <see cref="T:System.Int32"/> then it will have an integer value. Otherwise it will have a string value.
+        /// </summary>
+        /// <param name="source">The string representation of the identifier</param>
+        /// <returns>The parsed <see cref="T:SemanticVersioning.VersionIdentifier"/></returns>
         public static VersionIdentifier Parse(string source)
         {
             int integerValue;
@@ -35,11 +58,19 @@ namespace SemanticVersioning
                 : new VersionIdentifier(source.Trim());
         }
 
+        /// <summary>
+        /// Implicitly converts an <see cref="T:System.Int32"/> to a <see cref="T:SemanticVersioning.VersionIdentifier"/>.
+        /// </summary>
+        /// <param name="integerValue">The identifer's integer value.</param>
         public static implicit operator VersionIdentifier(int integerValue)
         {
             return new VersionIdentifier(integerValue);
         }
 
+        /// <summary>
+        /// Implicitly converts an <see cref="T:System.String"/> to a <see cref="T:SemanticVersioning.VersionIdentifier"/>.
+        /// </summary>
+        /// <param name="stringValue">The identifer's string value.</param>
         public static implicit operator VersionIdentifier(string stringValue)
         {
             return new VersionIdentifier(stringValue);
