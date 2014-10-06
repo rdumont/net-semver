@@ -200,23 +200,27 @@ namespace SemanticVersioning
             return 0;
         }
 
-        public void Increment(IncrementType type)
+        /// <summary>
+        /// Increments this version's value by one in the given segment.
+        /// </summary>
+        /// <param name="segment"></param>
+        public void Increment(VersionSegment segment)
         {
-            switch (type)
+            switch (segment)
             {
-                case IncrementType.Major:
+                case VersionSegment.Major:
                     _major++;
                     _minor = -1;
-                    goto case IncrementType.Minor;
-                case IncrementType.Minor:
+                    goto case VersionSegment.Minor;
+                case VersionSegment.Minor:
                     _minor++;
                     _patch = -1;
-                    goto case IncrementType.Patch;
-                case IncrementType.Patch:
+                    goto case VersionSegment.Patch;
+                case VersionSegment.Patch:
                     _patch++;
                     _prerelease = new VersionIdentifier[0];
                     break;
-                case IncrementType.Prerelease:
+                case VersionSegment.Prerelease:
                     if (_prerelease.Length == 0)
                         _prerelease = new VersionIdentifier[] { 0 };
                     else
@@ -237,7 +241,7 @@ namespace SemanticVersioning
                     }
                     break;
                 default:
-                    throw new ArgumentException("Invalid increment: " + type, "type");
+                    throw new ArgumentException("Invalid increment: " + segment, "segment");
             }
             this.Format();
         }

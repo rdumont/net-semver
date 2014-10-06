@@ -1,6 +1,6 @@
 ﻿namespace SemanticVersioning
 {
-    public enum IncrementType
+    public enum VersionSegment
     {
         Prerelease,
         Patch,

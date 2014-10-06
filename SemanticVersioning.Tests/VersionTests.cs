@@ -420,7 +420,7 @@ namespace SemanticVersioning.Tests
                 var version = Version.Parse(initial);
 
                 // Act
-                version.Increment(IncrementType.Prerelease);
+                version.Increment(VersionSegment.Prerelease);
 
                 // Assert
                 Assert.That(version.ToString(), Is.EqualTo(expected));
@@ -434,7 +434,7 @@ namespace SemanticVersioning.Tests
                 var version = Version.Parse(initial);
 
                 // Act
-                version.Increment(IncrementType.Patch);
+                version.Increment(VersionSegment.Patch);
 
                 // Assert
                 Assert.That(version.ToString(), Is.EqualTo(expected));
@@ -448,7 +448,7 @@ namespace SemanticVersioning.Tests
                 var version = Version.Parse(initial);
 
                 // Act
-                version.Increment(IncrementType.Minor);
+                version.Increment(VersionSegment.Minor);
 
                 // Assert
                 Assert.That(version.ToString(), Is.EqualTo(expected));
@@ -462,7 +462,7 @@ namespace SemanticVersioning.Tests
                 var version = Version.Parse(initial);
 
                 // Act
-                version.Increment(IncrementType.Major);
+                version.Increment(VersionSegment.Major);
 
                 // Assert
                 Assert.That(version.ToString(), Is.EqualTo(expected));
